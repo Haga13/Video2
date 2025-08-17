@@ -24,41 +24,26 @@
         }
 
         .video-stream {
-            /* Match video resolution 320x240 for optimal performance */
-            width: 320px;
-            height: 240px;
+            width: 100vw;
+            height: 100vh;
+            object-fit: fill;
             background: white;
             display: block;
-            /* Center the video on screen */
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            /* Scale up for better visibility while maintaining aspect ratio */
-            transform: translate(-50%, -50%) scale(2);
-            /* Disable image smoothing for better performance */
-            image-rendering: pixelated;
-            image-rendering: -moz-crisp-edges;
-            image-rendering: crisp-edges;
         }
 
         @media screen and (max-width: 1024px) and (max-height: 600px) {
             .video-stream {
-                /* 7 inch display optimization - scale to fit better */
-                width: 320px;
-                height: 240px;
-                transform: translate(-50%, -50%) scale(2.5);
-                object-fit: contain;
+                object-fit: fill;
+                width: 100vw;
+                height: 100vh;
             }
         }
 
         @media screen and (max-width: 800px) and (max-height: 480px) {
             .video-stream {
-                /* Small 7 inch display - scale to almost full screen */
-                width: 320px;
-                height: 240px;
-                transform: translate(-50%, -50%) scale(2.2);
-                object-fit: contain;
+                object-fit: fill;
+                width: 100vw;
+                height: 100vh;
             }
 
             .overlay-text {
@@ -75,21 +60,6 @@
                 width: 6px !important;
                 height: 6px !important;
                 margin-right: 6px !important;
-            }
-
-            .sensor-panel,
-            .mode-panel {
-                font-size: 10px !important;
-                padding: 6px !important;
-                bottom: 5px !important;
-            }
-
-            .sensor-panel {
-                left: 10px !important;
-            }
-
-            .mode-panel {
-                right: 10px !important;
             }
         }
 
@@ -148,71 +118,7 @@
             }
         }
 
-        /* Live indicator - titik merah berkedip */
-        .live-indicator {
-            position: fixed;
-            top: 15px;
-            right: 20px;
-            display: flex;
-            align-items: center;
-            z-index: 12;
-            pointer-events: none;
-        }
-
-        .live-dot {
-            width: 12px;
-            height: 12px;
-            background-color: #ff0000;
-            border-radius: 50%;
-            margin-right: 8px;
-            animation: blink 1.5s infinite;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
-        }
-
-        .live-text {
-            color: #ff0000;
-            font-family: 'Arial Black', Arial, sans-serif;
-            font-size: 14px;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-
-        /* Responsif untuk layar kecil */
-        @media screen and (max-width: 800px) {
-            .live-indicator {
-                top: 8px;
-                right: 15px;
-            }
-
-            .live-dot {
-                width: 10px;
-                height: 10px;
-                margin-right: 6px;
-            }
-
-            .live-text {
-                font-size: 12px;
-            }
-
-            .sensor-panel {
-                bottom: 120px !important;
-                left: 8px !important;
-                padding: 4px !important;
-                font-size: 9px !important;
-                min-width: 100px !important;
-                max-width: 130px !important;
-            }
-
-            .mode-panel {
-                bottom: 5px !important;
-                left: 8px !important;
-                padding: 6px !important;
-                font-size: 9px !important;
-                min-width: 120px !important;
-                max-width: 140px !important;
-            }
-        }
-
+        /* Sensor Panel Styles */
         .sensor-panel {
             position: fixed;
             bottom: 180px;
@@ -233,33 +139,27 @@
         .sensor-title {
             text-align: center;
             font-weight: bold;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: #ffffff;
-            border-bottom: 2px solid #00ff00;
-            padding-bottom: 4px;
-            font-size: 12px;
-            letter-spacing: 0.5px;
+            border-bottom: 1px solid #00ff00;
+            padding-bottom: 3px;
+            font-size: 11px;
         }
 
         .sensor-item {
-            margin: 6px 0;
+            margin: 4px 0;
             display: flex;
             justify-content: space-between;
-            font-size: 11px;
-            padding: 2px 4px;
-            border-radius: 3px;
-            background: rgba(0, 255, 0, 0.05);
+            font-size: 10px;
         }
 
         .sensor-label {
             color: #ffffff;
-            font-weight: 500;
         }
 
         .sensor-value {
             color: #00ff00;
             font-weight: bold;
-            font-family: 'Courier New', monospace;
         }
 
         .status-indicator {
@@ -275,6 +175,7 @@
             background: #00ff00;
         }
 
+        /* Mode Panel Styles */
         .mode-panel {
             position: fixed;
             bottom: 8px;
@@ -294,27 +195,26 @@
         .mode-title {
             text-align: center;
             font-weight: bold;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: #ffffff;
-            border-bottom: 2px solid #ff6600;
-            padding-bottom: 4px;
-            font-size: 12px;
-            letter-spacing: 0.5px;
+            border-bottom: 1px solid #ff6600;
+            padding-bottom: 3px;
+            font-size: 11px;
         }
 
         .mode-button {
-            background: rgba(255, 102, 0, 0.15);
-            border: 2px solid #ff6600;
-            border-radius: 5px;
+            background: rgba(255, 102, 0, 0.2);
+            border: 1px solid #ff6600;
+            border-radius: 4px;
             color: #ffffff;
             font-family: 'Courier New', monospace;
             font-size: 10px;
             font-weight: bold;
-            padding: 8px;
-            width: 100%;
+            padding: 6px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            margin-bottom: 4px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 6px;
             text-transform: uppercase;
         }
 
@@ -351,14 +251,31 @@
 
         .mode-status {
             text-align: center;
-            margin-top: 8px;
+            margin-top: 6px;
             font-weight: bold;
-            font-size: 10px;
+            font-size: 9px;
             color: #ffffff;
-            background: rgba(255, 102, 0, 0.1);
-            padding: 4px;
-            border-radius: 3px;
-            border: 1px solid rgba(255, 102, 0, 0.3);
+        }
+
+        /* Responsive adjustments */
+        @media screen and (max-width: 800px) {
+            .sensor-panel {
+                bottom: 120px !important;
+                left: 8px !important;
+                padding: 4px !important;
+                font-size: 9px !important;
+                min-width: 100px !important;
+                max-width: 130px !important;
+            }
+
+            .mode-panel {
+                bottom: 5px !important;
+                left: 8px !important;
+                padding: 6px !important;
+                font-size: 9px !important;
+                min-width: 120px !important;
+                max-width: 140px !important;
+            }
         }
     </style>
 </head>
@@ -369,27 +286,9 @@
         <div class="overlay-text">MALEO</div>
         <div class="overlay-subtext">
             <div class="live-dot-overlay"></div>
-            Live Streaming - 320x240
+            Live Streaming
         </div>
     </div>
-
-    <!-- Live Indicator - Titik merah berkedip -->
-    <!-- <div class="live-indicator">
-        <div class="live-dot"></div>
-        <div class="live-text">LIVE</div>
-    </div> -->
-
-    <div id="dateDisplay" style="
-        position: fixed;
-        top: 10px;
-        left: 15px;
-        color: #fff;
-        font-family: Arial, sans-serif;
-        font-size: 14px;
-        font-weight: bold;
-        z-index: 11;
-        pointer-events: none;
-    "></div>
 
     <!-- Panel Sensor Data -->
     <div class="sensor-panel">
@@ -411,7 +310,7 @@
         </div>
     </div>
 
-    <!-- Panel AI Detection Mode -->
+    <!-- Panel Mode Toggle -->
     <div class="mode-panel">
         <div class="mode-title">
             AI DETECTION MODE
@@ -420,7 +319,7 @@
             SWITCH TO POSE MODE
         </button>
         <div class="mode-status" id="currentMode">
-            🎯 Current: WEAPON MODE
+            Current: WEAPON MODE
         </div>
     </div>
 
@@ -447,18 +346,12 @@
             if (currentMode === 'weapon') {
                 modeButton.textContent = 'SWITCH TO POSE MODE';
                 modeButton.className = 'mode-button weapon';
-                currentModeText.innerHTML = '🎯 Current: <strong>WEAPON MODE</strong>';
+                currentModeText.textContent = 'Current: WEAPON MODE';
             } else {
                 modeButton.textContent = 'SWITCH TO WEAPON MODE';
                 modeButton.className = 'mode-button pose';
-                currentModeText.innerHTML = '🤸 Current: <strong>POSE MODE</strong>';
+                currentModeText.textContent = 'Current: POSE MODE';
             }
-        }
-
-        function updateDate() {
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            const now = new Date();
-            document.getElementById('dateDisplay').textContent = now.toLocaleDateString('id-ID', options);
         }
 
         function updateSensorData() {
@@ -478,66 +371,12 @@
                         statusIndicator.className = 'status-indicator';
                         document.getElementById('lastUpdate').textContent = lastUpdate.toFixed(0) + 's ago';
                     }
-
-                    // Update live indicator based on streaming status
-                    updateLiveIndicator(true);
                 })
                 .catch(error => {
                     console.error('Error fetching sensor data:', error);
                     document.getElementById('statusIndicator').className = 'status-indicator';
                     document.getElementById('lastUpdate').textContent = 'Error';
-
-                    // Update live indicator - show disconnected state
-                    updateLiveIndicator(false);
                 });
-        }
-
-        function updateLiveIndicator(isConnected) {
-            const liveIndicator = document.querySelector('.live-indicator');
-            const liveDot = document.querySelector('.live-dot');
-            const liveText = document.querySelector('.live-text');
-
-            if (isConnected) {
-                // Connected state - red blinking dot
-                liveDot.style.backgroundColor = '#ff0000';
-                liveDot.style.animation = 'blink 1.5s infinite';
-                liveDot.style.boxShadow = '0 0 10px rgba(255, 0, 0, 0.8)';
-                liveText.style.color = '#ff0000';
-                liveText.textContent = 'LIVE';
-            } else {
-                // Disconnected state - gray static dot
-                liveDot.style.backgroundColor = '#666666';
-                liveDot.style.animation = 'none';
-                liveDot.style.boxShadow = 'none';
-                liveText.style.color = '#666666';
-                liveText.textContent = 'OFFLINE';
-            }
-        }
-
-        // Check video stream status
-        function checkStreamStatus() {
-            const videoElement = document.getElementById('videoStream');
-
-            // Monitor video load events
-            videoElement.addEventListener('loadstart', () => {
-                console.log('Stream loading...');
-                updateLiveIndicator(false);
-            });
-
-            videoElement.addEventListener('loadeddata', () => {
-                console.log('Stream loaded');
-                updateLiveIndicator(true);
-            });
-
-            videoElement.addEventListener('error', () => {
-                console.log('Stream error');
-                updateLiveIndicator(false);
-            });
-
-            // Check if video is playing
-            videoElement.addEventListener('play', () => {
-                updateLiveIndicator(true);
-            });
         }
 
         function fetchCurrentMode() {
@@ -554,11 +393,9 @@
                 });
         }
 
-        updateDate();
+        // Initialize
         updateSensorData();
         fetchCurrentMode(); // Get initial mode from server
-        checkStreamStatus(); // Monitor video stream status
-        setInterval(updateDate, 60000);
         setInterval(updateSensorData, 2000); // Update sensor data setiap 2 detik
     </script>
 </body>
