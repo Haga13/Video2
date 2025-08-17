@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Stream</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: black;
+            overflow: hidden;
+        }
+
+        .video-stream {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+        }
+
+        .overlay-text {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-family: 'Arial Black', Arial, sans-serif;
+            font-size: 48px;
+            font-weight: bold;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+            z-index: 10;
+            pointer-events: none;
+            letter-spacing: 3px;
+        }
+
+        .overlay-subtext {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-family: Arial, sans-serif;
+            font-size: 28px;
+            font-weight: normal;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            z-index: 10;
+            pointer-events: none;
+            letter-spacing: 2px;
+        }
+
+        .sensor-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 15px;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            z-index: 11;
+            pointer-events: none;
+            min-width: 200px;
+        }
+
+        .sensor-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ffffff;
+            border-bottom: 1px solid #00ff00;
+            padding-bottom: 5px;
+        }
+
+        .sensor-item {
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .sensor-label {
+            color: #ffffff;
+        }
+
+        .sensor-value {
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff0000;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .status-indicator.connected {
+            background: #00ff00;
+        }
+
+        .control-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+            height: 8px;
+            width: 100%;
+            pointer-events: auto;
+        }
+
+        .control-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+
+        .control-button.active {
+            background: rgba(0, 255, 0, 0.2);
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+
+        .video-stream.grayscale {
+            filter: grayscale(100%);
+        }
+    </style>
+</head>
+
+<body>
+    <img id="videoStream" class="video-stream" src="/video_feed" alt="Video Stream">
+    <div class="overlay-text">MALEO</div>
+    <div class="overlay-subtext">Live Streaming</div>
+
+    <div id="dateDisplay" style="
+        position: fixed;
+        top: 20px;
+        left: 30px;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        font-size: 22px;
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        z-index: 11;
+        pointer-events: none;
+    "></div>
+
+    <!-- Panel Sensor Data -->
+    <div class="sensor-panel">
+        <div class="sensor-title">
+            <span id="statusIndicator" class="status-indicator"></span>
+            SENSOR DATA
+        </div>
+        <div class="sensor-item">
+            <span class="sensor-label">Temperature:</span>
+            <span class="sensor-value" id="temperature">--°C</span>
+        </div>
+        <div class="sensor-item">
+            <span class="sensor-label">Humidity:</span>
+            <span class="sensor-value" id="humidity">--%</span>
+        </div>
+        <div class="sensor-item">
+            <span class="sensor-label">Last Update:</span>
+            <span class="sensor-value" id="lastUpdate">--</span>
+        </div>
+        <button class="control-button" id="grayscaleBtn" onclick="toggleGrayscale()">
+
+        </button>
+    </div>
+
+    <script>
+        let isGrayscale = false;
+
+        function toggleGrayscale() {
+            const videoStream = document.getElementById('videoStream');
+            const grayscaleBtn = document.getElementById('grayscaleBtn');
+
+            isGrayscale = !isGrayscale;
+
+            if (isGrayscale) {
+                videoStream.classList.add('grayscale');
+                grayscaleBtn.textContent = '';
+                grayscaleBtn.classList.add('active');
+            } else {
+                videoStream.classList.remove('grayscale');
+                grayscaleBtn.textContent = '';
+                grayscaleBtn.classList.remove('active');
+            }
+        }
+
+        function updateDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const now = new Date();
+            document.getElementById('dateDisplay').textContent = now.toLocaleDateString('id-ID', options);
+        }
+
+        function updateSensorData() {
+            fetch('/get_sensor_data')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('temperature').textContent = data.temperature.toFixed(1) + '°C';
+                    document.getElementById('humidity').textContent = data.humidity.toFixed(1) + '%';
+
+                    const lastUpdate = data.last_update;
+                    const statusIndicator = document.getElementById('statusIndicator');
+
+                    if (lastUpdate < 10) {
+                        statusIndicator.className = 'status-indicator connected';
+                        document.getElementById('lastUpdate').textContent = 'Active';
+                    } else {
+                        statusIndicator.className = 'status-indicator';
+                        document.getElementById('lastUpdate').textContent = lastUpdate.toFixed(0) + 's ago';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching sensor data:', error);
+                    document.getElementById('statusIndicator').className = 'status-indicator';
+                    document.getElementById('lastUpdate').textContent = 'Error';
+                });
+        }
+
+        updateDate();
+        updateSensorData();
+        setInterval(updateDate, 60000);
+        setInterval(updateSensorData, 2000); // Update sensor data setiap 2 detik
+    </script>
+</body>
+
+</html>
