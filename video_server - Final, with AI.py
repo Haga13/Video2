@@ -377,16 +377,16 @@ class AIDetector:
         return frame
 
 class VideoStreamer:
-    def __init__(self, camera_index=0, fps=30, quality=80):
+    def __init__(self, camera_index=0, fps=30, quality=85):
         self.camera_index = camera_index
         self.fps = fps
-        self.quality = quality
+        self.quality = quality  # Higher quality for HD resolution
         self.frame_queue = queue.Queue(maxsize=1)  # Reduce buffer for lower latency
         self.cap = None
         self.running = False
-        # Optimized resolution for 7-inch display (800x480 common resolution)
-        self.frame_width = 640  # Better fit for 7-inch screen
-        self.frame_height = 480  # 4:3 aspect ratio optimal for 7-inch
+        # High definition resolution for better quality
+        self.frame_width = 1080  # HD width for better video quality
+        self.frame_height = 720  # HD height (720p)
         
         # Skip frame processing for performance
         self.frame_skip_counter = 0
@@ -660,6 +660,11 @@ def set_performance_mode(mode):
 def set_display_config(display_type):
     """Configure display settings for 7-inch screens"""
     display_configs = {
+        'hd_1080x720': {
+            'width': 1080, 'height': 720, 
+            'name': 'HD 1080x720 (High Quality)',
+            'quality': 85
+        },
         '7inch_800x480': {
             'width': 640, 'height': 480, 
             'name': '7 Inch 800x480 (Recommended)',
@@ -691,9 +696,9 @@ def set_display_config(display_type):
             'ai_input_size': 320
         },
         'default': {
-            'width': 640, 'height': 480, 
-            'name': 'Default Resolution',
-            'quality': 75
+            'width': 1080, 'height': 720, 
+            'name': 'HD Default Resolution',
+            'quality': 85
         }
     }
     
