@@ -2,6 +2,9 @@
 """
 Enhanced Video Streaming Server with AI Detection
 Menggunakan Flask, OpenCV, dan YOLOv8 untuk streaming video dengan deteksi senjata, granat, dan pose
+
+Compatible with Windows and Linux (Jetson Nano)
+Uses relative paths for cross-platform compatibility
 """
 
 import cv2
@@ -15,30 +18,73 @@ import base64
 from ultralytics import YOLO
 import os
 import math
+import platform
+
+# Print system information for debugging
+print(f"Running on: {platform.system()} {platform.release()}")
+print(f"Python version: {platform.python_version()}")
+print(f"Working directory: {os.getcwd()}")
 
 app = Flask(__name__)
 
+def get_model_path(relative_path):
+    """
+    Get absolute path for model files using relative paths
+    This ensures compatibility across different operating systems
+    """
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(script_dir, relative_path)
+    return os.path.normpath(model_path)
+
+def check_model_exists(model_path, model_name):
+    """Check if model exists and print debug information"""
+    if os.path.exists(model_path):
+        file_size = os.path.getsize(model_path) / (1024 * 1024)  # Size in MB
+        print(f"✅ {model_name} found: {model_path} ({file_size:.1f} MB)")
+        return True
+    else:
+        print(f"❌ {model_name} not found: {model_path}")
+        # Try to list directory contents for debugging
+        dir_path = os.path.dirname(model_path)
+        if os.path.exists(dir_path):
+            files = [f for f in os.listdir(dir_path) if f.endswith(('.pt', '.onnx', '.engine'))]
+            if files:
+                print(f"   Available model files in directory: {files}")
+            else:
+                print(f"   No model files found in: {dir_path}")
+        else:
+            print(f"   Directory does not exist: {dir_path}")
+        return False
+
 class PoseDetector:
-    def __init__(self, model_size='n', confidence_threshold=0.5, input_size=640):
+    def __init__(self, model_size='n', confidence_threshold=0.5, input_size=416):
         """
         Initialize YOLOv8 Pose detector
         
         Args:
             model_size: 'n' (nano/fastest), 's' (small), 'm' (medium), 'l' (large), 'x' (extra large)
             confidence_threshold: minimum confidence for pose detection (0.0-1.0)
-            input_size: input image size for the model
+            input_size: input image size for the model (reduced for performance)
         """
         self.confidence_threshold = confidence_threshold
-        self.input_size = input_size
+        self.input_size = input_size  # Reduced from 640 to 416 for better performance
         self.pose_model = None
         self.pose_enabled = True
         
         # Load YOLOv8 pose model
         model_name = f"yolov8{model_size}-pose.pt"
-        print(f"Loading YOLOv8 Pose model: {model_name}")
+        model_path = get_model_path(model_name)
+        
+        print(f"Loading YOLOv8 Pose model...")
         
         try:
-            self.pose_model = YOLO(model_name)
+            # Try to load from local directory first
+            if check_model_exists(model_path, "YOLOv8 Pose model"):
+                self.pose_model = YOLO(model_path)
+            else:
+                # If not found locally, try to download from ultralytics
+                print(f"Downloading {model_name} from ultralytics...")
+                self.pose_model = YOLO(model_name)
             print("✅ YOLOv8 Pose model loaded successfully")
         except Exception as e:
             print(f"❌ Error loading YOLOv8 pose model: {e}")
@@ -156,9 +202,9 @@ class PoseDetector:
 
 class AIDetector:
     def __init__(self):
-        # Paths to the AI models
-        self.gun_model_path = r"C:\Users\ADMIN\Documents\UNHAN\UNHAN\Gun Detection\GunModel.pt"
-        self.grenade_model_path = r"C:\Users\ADMIN\Documents\UNHAN\UNHAN\Grenade Detection\best.pt"
+        # Paths to the AI models (using relative paths)
+        self.gun_model_path = get_model_path("Gun Detection/GunModel.pt")
+        self.grenade_model_path = get_model_path("Grenade Detection/best.pt")
         
         # Load models
         self.gun_model = None
@@ -170,6 +216,13 @@ class AIDetector:
         self.grenade_confidence_threshold = 0.85
         self.detection_enabled = True
         
+        # Mode toggle: 'weapon' or 'pose'
+        self.detection_mode = 'weapon'  # Default to weapon detection
+        
+        # Alternating weapon detection untuk mengurangi load
+        self.weapon_frame_counter = 0
+        self.weapon_detection_interval = 3  # Alternate between gun and grenade every 3 frames
+        
         # Initialize pose detector
         self.pose_detector = PoseDetector()
         
@@ -179,27 +232,31 @@ class AIDetector:
         """Load YOLOv8 models for gun and grenade detection"""
         try:
             print("Loading AI detection models...")
+            print(f"Script running from: {os.path.dirname(os.path.abspath(__file__))}")
             
             # Load gun detection model
-            if os.path.exists(self.gun_model_path):
+            if check_model_exists(self.gun_model_path, "Gun detection model"):
                 self.gun_model = YOLO(self.gun_model_path)
                 print("✅ Gun detection model loaded successfully")
             else:
-                print(f"❌ Gun model not found at: {self.gun_model_path}")
+                print("⚠️ Gun detection model not available")
             
             # Load grenade detection model
-            if os.path.exists(self.grenade_model_path):
+            if check_model_exists(self.grenade_model_path, "Grenade detection model"):
                 self.grenade_model = YOLO(self.grenade_model_path)
                 print("✅ Grenade detection model loaded successfully")
             else:
-                print(f"❌ Grenade model not found at: {self.grenade_model_path}")
+                print("⚠️ Grenade detection model not available")
             
             self.models_loaded = (self.gun_model is not None) or (self.grenade_model is not None)
             
             if self.models_loaded:
-                print("🤖 AI Detection system ready!")
+                print("🤖 Weapon Detection system ready!")
+                if self.gun_model: print("   - Gun detection: READY")
+                if self.grenade_model: print("   - Grenade detection: READY")
             else:
-                print("⚠️ No weapon detection models loaded")
+                print("⚠️ Running without weapon detection models")
+                print("   Only pose detection will be available")
                 
         except Exception as e:
             print(f"❌ Error loading AI models: {e}")
@@ -214,64 +271,76 @@ class AIDetector:
         poses = []
         
         try:
-            # Pose detection
-            if self.pose_detector.pose_enabled and self.pose_detector.pose_model is not None:
-                poses = self.pose_detector.detect_poses(frame)
-                frame = self.pose_detector.draw_poses(frame, poses, 
-                                                     draw_skeleton=True, 
-                                                     draw_keypoints=True)
+            # Check detection mode and run appropriate detection
+            if self.detection_mode == 'pose':
+                # Only run pose detection
+                if self.pose_detector.pose_enabled and self.pose_detector.pose_model is not None:
+                    poses = self.pose_detector.detect_poses(frame)
+                    frame = self.pose_detector.draw_poses(frame, poses, 
+                                                         draw_skeleton=True, 
+                                                         draw_keypoints=True)
             
-            # Only run weapon detection if models are loaded
-            if self.models_loaded:
-                # Gun detection
-                if self.gun_model is not None:
-                    gun_results = self.gun_model(frame, stream=True)
-                    for result in gun_results:
-                        boxes = result.boxes
-                        if boxes is not None:
-                            for box in boxes:
-                                x1, y1, x2, y2 = map(int, box.xyxy[0])
-                                conf = float(box.conf[0])
-                                cls_id = int(box.cls[0])
-                                
-                                if conf >= self.gun_confidence_threshold:
-                                    label = self.gun_model.names[cls_id]
-                                    detections.append({
-                                        'type': 'gun',
-                                        'bbox': (x1, y1, x2, y2),
-                                        'confidence': conf,
-                                        'label': label,
-                                        'color': (0, 0, 255)  # Red for guns
-                                    })
+            elif self.detection_mode == 'weapon':
+                # Optimized weapon detection - alternate between gun and grenade
+                if self.models_loaded:
+                    self.weapon_frame_counter += 1
+                    
+                    # Alternate between gun and grenade detection untuk mengurangi load
+                    if self.weapon_frame_counter % self.weapon_detection_interval == 0:
+                        current_weapon_model = 'grenade'
+                    else:
+                        current_weapon_model = 'gun'
+                    
+                    # Gun detection
+                    if current_weapon_model == 'gun' and self.gun_model is not None:
+                        gun_results = self.gun_model(frame, imgsz=416, stream=True, verbose=False)  # Reduced size + disable verbose
+                        for result in gun_results:
+                            boxes = result.boxes
+                            if boxes is not None:
+                                for box in boxes:
+                                    x1, y1, x2, y2 = map(int, box.xyxy[0])
+                                    conf = float(box.conf[0])
+                                    cls_id = int(box.cls[0])
+                                    
+                                    if conf >= self.gun_confidence_threshold:
+                                        label = self.gun_model.names[cls_id]
+                                        detections.append({
+                                            'type': 'gun',
+                                            'bbox': (x1, y1, x2, y2),
+                                            'confidence': conf,
+                                            'label': label,
+                                            'color': (0, 0, 255)  # Red for guns
+                                        })
+                    
+                    # Grenade detection
+                    elif current_weapon_model == 'grenade' and self.grenade_model is not None:
+                        grenade_results = self.grenade_model(frame, imgsz=416, stream=True, verbose=False)  # Reduced size + disable verbose
+                        for result in grenade_results:
+                            boxes = result.boxes
+                            if boxes is not None:
+                                for box in boxes:
+                                    x1, y1, x2, y2 = map(int, box.xyxy[0])
+                                    conf = float(box.conf[0])
+                                    cls_id = int(box.cls[0])
+                                    
+                                    if conf >= self.grenade_confidence_threshold:
+                                        label = self.grenade_model.names[cls_id]
+                                        detections.append({
+                                            'type': 'grenade',
+                                            'bbox': (x1, y1, x2, y2),
+                                            'confidence': conf,
+                                            'label': label,
+                                            'color': (0, 255, 0)  # Green for grenades
+                                        })
                 
-                # Grenade detection
-                if self.grenade_model is not None:
-                    grenade_results = self.grenade_model(frame, stream=True)
-                    for result in grenade_results:
-                        boxes = result.boxes
-                        if boxes is not None:
-                            for box in boxes:
-                                x1, y1, x2, y2 = map(int, box.xyxy[0])
-                                conf = float(box.conf[0])
-                                cls_id = int(box.cls[0])
-                                
-                                if conf >= self.grenade_confidence_threshold:
-                                    label = self.grenade_model.names[cls_id]
-                                    detections.append({
-                                        'type': 'grenade',
-                                        'bbox': (x1, y1, x2, y2),
-                                        'confidence': conf,
-                                        'label': label,
-                                        'color': (0, 255, 0)  # Green for grenades
-                                    })
-            
-            # Draw weapon detections on frame
-            annotated_frame = self.draw_detections(frame, detections)
+                # Draw weapon detections on frame
+                annotated_frame = self.draw_detections(frame, detections)
+                frame = annotated_frame
             
             # Add detection info overlay
-            annotated_frame = self.draw_info_overlay(annotated_frame, len(poses), len(detections))
+            frame = self.draw_info_overlay(frame, len(poses), len(detections))
             
-            return annotated_frame
+            return frame
             
         except Exception as e:
             print(f"Detection error: {e}")
@@ -292,43 +361,19 @@ class AIDetector:
             # Prepare label text with type identifier
             text = f"{det_type.upper()}: {label} ({conf:.2f})"
             
-            # Calculate text size for background
+            # Calculate text size
             font = cv2.FONT_HERSHEY_SIMPLEX
             font_scale = 0.7
             thickness = 2
-            (text_width, text_height), baseline = cv2.getTextSize(text, font, font_scale, thickness)
             
-            # Draw background rectangle for text
-            cv2.rectangle(frame, (x1, y1 - text_height - 10), (x1 + text_width + 10, y1), color, -1)
-            
-            # Draw text
-            cv2.putText(frame, text, (x1 + 5, y1 - 5), font, font_scale, (255, 255, 255), thickness)
+            # Draw text directly without background
+            cv2.putText(frame, text, (x1 + 5, y1 - 5), font, font_scale, color, thickness)
         
         return frame
     
     def draw_info_overlay(self, frame, pose_count, weapon_count):
-        """Draw detection information overlay"""
-        # Draw semi-transparent background
-        overlay = frame.copy()
-        cv2.rectangle(overlay, (10, 10), (300, 120), (0, 0, 0), -1)
-        frame = cv2.addWeighted(frame, 0.7, overlay, 0.3, 0)
-        
-        # Add text information
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        cv2.putText(frame, f"People detected: {pose_count}", (20, 35),
-                   font, 0.6, (255, 255, 0), 2)
-        
-        cv2.putText(frame, f"Weapons detected: {weapon_count}", (20, 60),
-                   font, 0.6, (255, 0, 0) if weapon_count > 0 else (0, 255, 0), 2)
-        
-        status_text = "AI: ON" if self.detection_enabled else "AI: OFF"
-        cv2.putText(frame, status_text, (20, 85),
-                   font, 0.6, (0, 255, 0) if self.detection_enabled else (0, 0, 255), 2)
-        
-        pose_status = "Pose: ON" if self.pose_detector.pose_enabled else "Pose: OFF"
-        cv2.putText(frame, pose_status, (20, 110),
-                   font, 0.6, (0, 255, 0) if self.pose_detector.pose_enabled else (0, 0, 255), 2)
-        
+        """Clean interface - no overlay display"""
+        # Return frame without any overlay modifications
         return frame
 
 class VideoStreamer:
@@ -336,14 +381,22 @@ class VideoStreamer:
         self.camera_index = camera_index
         self.fps = fps
         self.quality = quality
-        self.frame_queue = queue.Queue(maxsize=2)  # Buffer kecil untuk latency rendah
+        self.frame_queue = queue.Queue(maxsize=1)  # Reduce buffer for lower latency
         self.cap = None
         self.running = False
-        self.frame_width = 640
-        self.frame_height = 480
+        # Optimized resolution for 7-inch display (800x480 common resolution)
+        self.frame_width = 640  # Better fit for 7-inch screen
+        self.frame_height = 480  # 4:3 aspect ratio optimal for 7-inch
+        
+        # Skip frame processing for performance
+        self.frame_skip_counter = 0
+        self.process_every_nth_frame = 2  # Process every 2nd frame only
         
         # Initialize AI detector
         self.detector = AIDetector()
+        
+        # Cache for last processed frame
+        self.last_processed_frame = None
         
     def start_camera(self):
         """Inisialisasi kamera dengan pengaturan optimal untuk latency rendah"""
@@ -365,13 +418,27 @@ class VideoStreamer:
         print(f"Kamera berhasil diinisialisasi: {self.frame_width}x{self.frame_height} @ {self.fps}fps")
         
     def capture_frames(self):
-        """Thread untuk mengambil frame dari kamera dan menjalankan deteksi AI"""
+        """Thread untuk mengambil frame dari kamera dan menjalankan deteksi AI dengan optimisasi"""
         while self.running:
             ret, frame = self.cap.read()
             if ret:
-                # Run AI detection on frame
-                if self.detector.detection_enabled:
-                    frame = self.detector.detect_objects(frame)
+                # Frame skipping untuk mengurangi load processing
+                self.frame_skip_counter += 1
+                
+                # Hanya proses AI detection setiap N frame
+                if self.frame_skip_counter >= self.process_every_nth_frame:
+                    if self.detector.detection_enabled:
+                        processed_frame = self.detector.detect_objects(frame)
+                        self.last_processed_frame = processed_frame
+                    else:
+                        self.last_processed_frame = frame
+                    self.frame_skip_counter = 0
+                else:
+                    # Gunakan frame terakhir yang sudah diproses untuk mengurangi lag
+                    processed_frame = self.last_processed_frame if self.last_processed_frame is not None else frame
+                
+                # Gunakan frame yang sudah diproses atau frame asli
+                final_frame = self.last_processed_frame if self.last_processed_frame is not None else frame
                 
                 # Bersihkan queue lama untuk mengurangi latency
                 if not self.frame_queue.empty():
@@ -381,11 +448,11 @@ class VideoStreamer:
                         pass
                 
                 try:
-                    self.frame_queue.put_nowait(frame)
+                    self.frame_queue.put_nowait(final_frame)
                 except queue.Full:
                     pass
             
-            time.sleep(1/self.fps)
+            time.sleep(1/(self.fps * 1.5))  # Slight adjustment for performance
     
     def get_frame(self):
         """Mendapatkan frame terbaru"""
@@ -464,6 +531,7 @@ def status():
         'resolution': f"{streamer.frame_width}x{streamer.frame_height}",
         'ai_detection': {
             'enabled': streamer.detector.detection_enabled,
+            'detection_mode': streamer.detector.detection_mode,
             'models_loaded': streamer.detector.models_loaded,
             'gun_model_loaded': streamer.detector.gun_model is not None,
             'grenade_model_loaded': streamer.detector.grenade_model is not None,
@@ -547,6 +615,121 @@ def toggle_pose():
         'message': f'Pose detection {status_text}'
     })
 
+@app.route('/toggle_mode')
+def toggle_mode():
+    """Toggle between weapon and pose detection modes"""
+    if streamer.detector.detection_mode == 'weapon':
+        streamer.detector.detection_mode = 'pose'
+        mode_name = "Pose Detection"
+    else:
+        streamer.detector.detection_mode = 'weapon'
+        mode_name = "Weapon Detection"
+    
+    return jsonify({
+        'detection_mode': streamer.detector.detection_mode,
+        'mode_name': mode_name,
+        'message': f'Switched to {mode_name} mode'
+    })
+
+@app.route('/performance_mode/<mode>')
+def set_performance_mode(mode):
+    """Set performance mode: 'fast', 'balanced', 'quality'"""
+    if mode == 'fast':
+        streamer.process_every_nth_frame = 3
+        streamer.detector.weapon_detection_interval = 5
+        message = "Fast mode: Lower quality, higher FPS"
+    elif mode == 'balanced':
+        streamer.process_every_nth_frame = 2
+        streamer.detector.weapon_detection_interval = 3
+        message = "Balanced mode: Medium quality and FPS"
+    elif mode == 'quality':
+        streamer.process_every_nth_frame = 1
+        streamer.detector.weapon_detection_interval = 1
+        message = "Quality mode: Best quality, lower FPS"
+    else:
+        return jsonify({'error': 'Invalid mode. Use: fast, balanced, quality'}), 400
+    
+    return jsonify({
+        'performance_mode': mode,
+        'frame_skip': streamer.process_every_nth_frame,
+        'weapon_interval': streamer.detector.weapon_detection_interval,
+        'message': message
+    })
+
+@app.route('/display_config/<display_type>')
+def set_display_config(display_type):
+    """Configure display settings for 7-inch screens"""
+    display_configs = {
+        '7inch_800x480': {
+            'width': 640, 'height': 480, 
+            'name': '7 Inch 800x480 (Recommended)',
+            'quality': 75
+        },
+        '7inch_1024x600': {
+            'width': 640, 'height': 480, 
+            'name': '7 Inch 1024x600 (Widescreen)',
+            'quality': 70
+        },
+        '7inch_compact': {
+            'width': 480, 'height': 360, 
+            'name': '7 Inch Compact (High Performance)',
+            'quality': 80
+        },
+        # NEW: Jetson-optimized configurations
+        'jetson_7inch_performance': {
+            'width': 512, 'height': 384,
+            'name': 'Jetson 7-Inch Performance (RECOMMENDED for Jetson)',
+            'quality': 65,
+            'frame_skip': 3,
+            'ai_input_size': 320
+        },
+        'jetson_7inch_balanced': {
+            'width': 640, 'height': 480,
+            'name': 'Jetson 7-Inch Balanced',  
+            'quality': 60,
+            'frame_skip': 4,
+            'ai_input_size': 320
+        },
+        'default': {
+            'width': 640, 'height': 480, 
+            'name': 'Default Resolution',
+            'quality': 75
+        }
+    }
+    
+    if display_type not in display_configs:
+        display_type = 'default'
+    
+    config = display_configs[display_type]
+    
+    # Apply new resolution (would require camera restart in production)
+    try:
+        if streamer.cap and streamer.cap.isOpened():
+            streamer.cap.set(cv2.CAP_PROP_FRAME_WIDTH, config['width'])
+            streamer.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config['height'])
+            streamer.frame_width = config['width']
+            streamer.frame_height = config['height']
+            streamer.quality = config['quality']
+            
+            # Apply Jetson-specific optimizations if available
+            if 'frame_skip' in config:
+                streamer.process_every_nth_frame = config['frame_skip']
+            if 'ai_input_size' in config:
+                if hasattr(streamer.detector, 'pose_detector'):
+                    streamer.detector.pose_detector.input_size = config['ai_input_size']
+        
+        return jsonify({
+            'display_type': display_type,
+            'config': config,
+            'current_resolution': f"{streamer.frame_width}x{streamer.frame_height}",
+            'frame_skip': getattr(streamer, 'process_every_nth_frame', 2),
+            'message': f"Display configured for {config['name']}"
+        })
+    except Exception as e:
+        return jsonify({
+            'error': f'Failed to apply display config: {str(e)}'
+        }), 500
+
 @app.route('/sensor_data', methods=['POST'])
 def receive_sensor_data():
     """Endpoint untuk menerima data sensor dari ESP"""
@@ -618,9 +801,11 @@ if __name__ == '__main__':
         print(f"  📊 Sensor data monitoring")
         print(f"  ⚙️  Real-time settings adjustment")
         print(f"\nAPI Endpoints:")
-        print(f"  GET  /status           - Status server dan AI")
+        print(f"  GET  /status           - Status server dan AI models")
         print(f"  GET  /toggle_detection - Toggle weapon detection")
         print(f"  GET  /toggle_pose      - Toggle pose detection")
+        print(f"  GET  /toggle_mode      - Switch between weapon/pose modes")
+        print(f"  GET  /performance_mode/<mode> - Set performance (fast/balanced/quality)")
         print(f"  POST /ai_settings      - Update AI confidence thresholds")
         print(f"  GET  /settings/<fps>/<quality> - Update video settings")
         print(f"\nUntuk mengakses dari perangkat lain di jaringan yang sama,")

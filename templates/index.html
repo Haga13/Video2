@@ -9,78 +9,227 @@
         body {
             margin: 0;
             padding: 0;
-            background: black;
+            background: white;
             overflow: hidden;
+            font-family: 'Arial', sans-serif;
         }
 
-        .video-stream {
+        .video-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            object-fit: cover;
+            background: white;
+        }
+
+        .video-stream {
+            width: 100vw;
+            height: 100vh;
+            object-fit: fill;
+            background: white;
+            display: block;
+        }
+
+        @media screen and (max-width: 1024px) and (max-height: 600px) {
+            .video-stream {
+                object-fit: fill;
+                width: 100vw;
+                height: 100vh;
+            }
+        }
+
+        @media screen and (max-width: 800px) and (max-height: 480px) {
+            .video-stream {
+                object-fit: fill;
+                width: 100vw;
+                height: 100vh;
+            }
+
+            .overlay-text {
+                font-size: 28px !important;
+                top: 5px !important;
+            }
+
+            .overlay-subtext {
+                font-size: 16px !important;
+                top: 40px !important;
+            }
+
+            .live-dot-overlay {
+                width: 6px !important;
+                height: 6px !important;
+                margin-right: 6px !important;
+            }
+
+            .sensor-panel,
+            .mode-panel {
+                font-size: 10px !important;
+                padding: 6px !important;
+                bottom: 5px !important;
+            }
+
+            .sensor-panel {
+                left: 10px !important;
+            }
+
+            .mode-panel {
+                right: 10px !important;
+            }
         }
 
         .overlay-text {
             position: fixed;
-            top: 20px;
+            top: 15px;
             left: 50%;
             transform: translateX(-50%);
             color: white;
             font-family: 'Arial Black', Arial, sans-serif;
-            font-size: 48px;
+            font-size: 32px;
             font-weight: bold;
-            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
-            z-index: 10;
-            pointer-events: none;
-            letter-spacing: 3px;
-        }
-
-        .overlay-subtext {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #fff;
-            font-family: Arial, sans-serif;
-            font-size: 28px;
-            font-weight: normal;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
             z-index: 10;
             pointer-events: none;
             letter-spacing: 2px;
         }
 
+        .overlay-subtext {
+            position: fixed;
+            top: 55px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            font-weight: normal;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Live dot untuk overlay text */
+        .live-dot-overlay {
+            width: 8px;
+            height: 8px;
+            background-color: #ff0000;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: blink 1.2s infinite;
+            box-shadow: 0 0 8px rgba(255, 0, 0, 0.6);
+        }
+
+        @keyframes blink {
+
+            0%,
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            51%,
+            100% {
+                opacity: 0.3;
+                transform: scale(0.8);
+            }
+        }
+
+        /* Live indicator - titik merah berkedip */
+        .live-indicator {
+            position: fixed;
+            top: 15px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            z-index: 12;
+            pointer-events: none;
+        }
+
+        .live-dot {
+            width: 12px;
+            height: 12px;
+            background-color: #ff0000;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: blink 1.5s infinite;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+        }
+
+        .live-text {
+            color: #ff0000;
+            font-family: 'Arial Black', Arial, sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* Responsif untuk layar kecil */
+        @media screen and (max-width: 800px) {
+            .live-indicator {
+                top: 8px;
+                right: 15px;
+            }
+
+            .live-dot {
+                width: 10px;
+                height: 10px;
+                margin-right: 6px;
+            }
+
+            .live-text {
+                font-size: 12px;
+            }
+
+            .sensor-panel {
+                bottom: 120px !important;
+                left: 8px !important;
+                padding: 4px !important;
+                font-size: 9px !important;
+                min-width: 100px !important;
+                max-width: 130px !important;
+            }
+
+            .mode-panel {
+                bottom: 5px !important;
+                left: 8px !important;
+                padding: 6px !important;
+                font-size: 9px !important;
+                min-width: 120px !important;
+                max-width: 140px !important;
+            }
+        }
+
         .sensor-panel {
             position: fixed;
-            bottom: 20px;
-            left: 30px;
-            background: rgba(0, 0, 0, 0.7);
-            border: 2px solid #00ff00;
-            border-radius: 10px;
-            padding: 15px;
+            bottom: 180px;
+            left: 10px;
+            background: rgba(0, 50, 0, 0.15);
+            border: 1px solid #00ff00;
+            border-radius: 6px;
+            padding: 6px;
             color: #00ff00;
             font-family: 'Courier New', monospace;
-            font-size: 16px;
-            z-index: 11;
+            font-size: 10px;
+            z-index: 12;
             pointer-events: none;
-            min-width: 200px;
+            min-width: 120px;
+            max-width: 150px;
         }
 
         .sensor-title {
             text-align: center;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
             color: #ffffff;
             border-bottom: 1px solid #00ff00;
-            padding-bottom: 5px;
+            padding-bottom: 3px;
+            font-size: 11px;
         }
 
         .sensor-item {
-            margin: 8px 0;
+            margin: 4px 0;
             display: flex;
             justify-content: space-between;
+            font-size: 10px;
         }
 
         .sensor-label {
@@ -93,12 +242,12 @@
         }
 
         .status-indicator {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background: #ff0000;
             display: inline-block;
-            margin-right: 5px;
+            margin-right: 4px;
         }
 
         .status-indicator.connected {
@@ -106,18 +255,18 @@
         }
 
         .control-button {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 5px;
+            border-radius: 4px;
             color: #ffffff;
             font-family: 'Courier New', monospace;
-            font-size: 12px;
-            padding: 5px 10px;
+            font-size: 10px;
+            padding: 4px 8px;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 8px;
-            height: 8px;
+            margin-bottom: 2px;
             width: 100%;
+            text-align: center;
             pointer-events: auto;
         }
 
@@ -133,26 +282,113 @@
             color: #00ff00;
         }
 
-        .video-stream.grayscale {
-            filter: grayscale(100%);
+        .mode-panel {
+            position: fixed;
+            bottom: 8px;
+            left: 10px;
+            background: rgba(50, 25, 0, 0.15);
+            border: 1px solid #ff6600;
+            border-radius: 6px;
+            padding: 8px;
+            color: #ff6600;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            z-index: 10;
+            min-width: 140px;
+            max-width: 160px;
+        }
+
+        .mode-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #ffffff;
+            border-bottom: 1px solid #ff6600;
+            padding-bottom: 3px;
+            font-size: 11px;
+        }
+
+        .mode-button {
+            background: rgba(255, 102, 0, 0.2);
+            border: 1px solid #ff6600;
+            border-radius: 4px;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 6px;
+            text-transform: uppercase;
+        }
+
+        .mode-button:hover {
+            background: rgba(255, 102, 0, 0.4);
+            border-color: #ffaa55;
+            color: #ffaa55;
+            transform: scale(1.02);
+        }
+
+        .mode-button.weapon {
+            border-color: #ff0000;
+            color: #ff0000;
+            background: rgba(255, 0, 0, 0.2);
+        }
+
+        .mode-button.weapon:hover {
+            background: rgba(255, 0, 0, 0.4);
+            border-color: #ff5555;
+            color: #ff5555;
+        }
+
+        .mode-button.pose {
+            border-color: #00ff00;
+            color: #00ff00;
+            background: rgba(0, 255, 0, 0.2);
+        }
+
+        .mode-button.pose:hover {
+            background: rgba(0, 255, 0, 0.4);
+            border-color: #55ff55;
+            color: #55ff55;
+        }
+
+        .mode-status {
+            text-align: center;
+            margin-top: 6px;
+            font-weight: bold;
+            font-size: 9px;
+            color: #ffffff;
         }
     </style>
 </head>
 
 <body>
-    <img id="videoStream" class="video-stream" src="/video_feed" alt="Video Stream">
-    <div class="overlay-text">MALEO</div>
-    <div class="overlay-subtext">Live Streaming</div>
+    <div class="video-container">
+        <img id="videoStream" class="video-stream" src="/video_feed" alt="Video Stream">
+        <div class="overlay-text">MALEO</div>
+        <div class="overlay-subtext">
+            <div class="live-dot-overlay"></div>
+            Live Streaming
+        </div>
+    </div>
+
+    <!-- Live Indicator - Titik merah berkedip -->
+    <!-- <div class="live-indicator">
+        <div class="live-dot"></div>
+        <div class="live-text">LIVE</div>
+    </div> -->
 
     <div id="dateDisplay" style="
         position: fixed;
-        top: 20px;
-        left: 30px;
+        top: 10px;
+        left: 15px;
         color: #fff;
         font-family: Arial, sans-serif;
-        font-size: 22px;
+        font-size: 14px;
         font-weight: bold;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
         z-index: 11;
         pointer-events: none;
     "></div>
@@ -175,28 +411,77 @@
             <span class="sensor-label">Last Update:</span>
             <span class="sensor-value" id="lastUpdate">--</span>
         </div>
-        <button class="control-button" id="grayscaleBtn" onclick="toggleGrayscale()">
+    </div>
 
+    <!-- Panel Mode Toggle -->
+    <div class="mode-panel">
+        <div class="mode-title">
+            AI DETECTION MODE
+        </div>
+        <button class="mode-button" id="modeToggleBtn" onclick="toggleMode()">
+            SWITCH TO POSE MODE
         </button>
+        <div class="mode-status" id="currentMode">
+            Current: WEAPON MODE
+        </div>
+
+        <!-- Display Configuration -->
+        <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #ff6600;">
+            <div style="text-align: center; font-size: 10px; color: #ffffff; margin-bottom: 6px; font-weight: bold;">
+                DISPLAY CONFIG
+            </div>
+            <button class="control-button" onclick="setDisplay('7inch_800x480')">
+                7" Optimal
+            </button>
+            <button class="control-button" onclick="setDisplay('7inch_compact')">
+                7" Compact
+            </button>
+        </div>
+
+        <!-- Jetson Configuration -->
+        <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #00ff00;">
+            <div style="text-align: center; font-size: 10px; color: #00ff00; margin-bottom: 6px; font-weight: bold;">
+                JETSON CONFIG
+            </div>
+            <button class="control-button" onclick="setDisplay('jetson_7inch_performance')"
+                style="background: rgba(0, 255, 0, 0.1); border-color: #00ff00; color: #00ff00;">
+                Performance
+            </button>
+            <button class="control-button" onclick="setDisplay('jetson_7inch_balanced')"
+                style="background: rgba(0, 255, 0, 0.1); border-color: #00ff00; color: #00ff00;">
+                Balanced
+            </button>
+        </div>
     </div>
 
     <script>
-        let isGrayscale = false;
+        let currentMode = 'weapon'; // Track current mode
 
-        function toggleGrayscale() {
-            const videoStream = document.getElementById('videoStream');
-            const grayscaleBtn = document.getElementById('grayscaleBtn');
+        function toggleMode() {
+            fetch('/toggle_mode')
+                .then(response => response.json())
+                .then(data => {
+                    currentMode = data.detection_mode;
+                    updateModeUI();
+                    console.log(data.message);
+                })
+                .catch(error => {
+                    console.error('Error toggling mode:', error);
+                });
+        }
 
-            isGrayscale = !isGrayscale;
+        function updateModeUI() {
+            const modeButton = document.getElementById('modeToggleBtn');
+            const currentModeText = document.getElementById('currentMode');
 
-            if (isGrayscale) {
-                videoStream.classList.add('grayscale');
-                grayscaleBtn.textContent = '';
-                grayscaleBtn.classList.add('active');
+            if (currentMode === 'weapon') {
+                modeButton.textContent = 'SWITCH TO POSE MODE';
+                modeButton.className = 'mode-button weapon';
+                currentModeText.textContent = 'Current: WEAPON MODE';
             } else {
-                videoStream.classList.remove('grayscale');
-                grayscaleBtn.textContent = '';
-                grayscaleBtn.classList.remove('active');
+                modeButton.textContent = 'SWITCH TO WEAPON MODE';
+                modeButton.className = 'mode-button pose';
+                currentModeText.textContent = 'Current: POSE MODE';
             }
         }
 
@@ -223,16 +508,142 @@
                         statusIndicator.className = 'status-indicator';
                         document.getElementById('lastUpdate').textContent = lastUpdate.toFixed(0) + 's ago';
                     }
+
+                    // Update live indicator based on streaming status
+                    updateLiveIndicator(true);
                 })
                 .catch(error => {
                     console.error('Error fetching sensor data:', error);
                     document.getElementById('statusIndicator').className = 'status-indicator';
                     document.getElementById('lastUpdate').textContent = 'Error';
+
+                    // Update live indicator - show disconnected state
+                    updateLiveIndicator(false);
                 });
+        }
+
+        function updateLiveIndicator(isConnected) {
+            const liveIndicator = document.querySelector('.live-indicator');
+            const liveDot = document.querySelector('.live-dot');
+            const liveText = document.querySelector('.live-text');
+
+            if (isConnected) {
+                // Connected state - red blinking dot
+                liveDot.style.backgroundColor = '#ff0000';
+                liveDot.style.animation = 'blink 1.5s infinite';
+                liveDot.style.boxShadow = '0 0 10px rgba(255, 0, 0, 0.8)';
+                liveText.style.color = '#ff0000';
+                liveText.textContent = 'LIVE';
+            } else {
+                // Disconnected state - gray static dot
+                liveDot.style.backgroundColor = '#666666';
+                liveDot.style.animation = 'none';
+                liveDot.style.boxShadow = 'none';
+                liveText.style.color = '#666666';
+                liveText.textContent = 'OFFLINE';
+            }
+        }
+
+        // Check video stream status
+        function checkStreamStatus() {
+            const videoElement = document.getElementById('videoStream');
+
+            // Monitor video load events
+            videoElement.addEventListener('loadstart', () => {
+                console.log('Stream loading...');
+                updateLiveIndicator(false);
+            });
+
+            videoElement.addEventListener('loadeddata', () => {
+                console.log('Stream loaded');
+                updateLiveIndicator(true);
+            });
+
+            videoElement.addEventListener('error', () => {
+                console.log('Stream error');
+                updateLiveIndicator(false);
+            });
+
+            // Check if video is playing
+            videoElement.addEventListener('play', () => {
+                updateLiveIndicator(true);
+            });
+        }
+
+        function fetchCurrentMode() {
+            fetch('/status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ai_detection && data.ai_detection.detection_mode) {
+                        currentMode = data.ai_detection.detection_mode;
+                        updateModeUI();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching status:', error);
+                });
+        }
+
+        function setDisplay(displayType) {
+            fetch(`/display_config/${displayType}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error('Display config error:', data.error);
+                        alert('Failed to set display configuration');
+                    } else {
+                        console.log(`Display configured: ${data.config.name}`);
+                        console.log(`Resolution: ${data.current_resolution}`);
+
+                        // Optional: Show brief notification
+                        showNotification(`Set to ${data.config.name}`);
+
+                        // Refresh video stream to apply new resolution
+                        setTimeout(() => {
+                            const videoElement = document.getElementById('videoStream');
+                            const currentSrc = videoElement.src;
+                            videoElement.src = '';
+                            setTimeout(() => {
+                                videoElement.src = currentSrc;
+                            }, 100);
+                        }, 500);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error setting display config:', error);
+                });
+        }
+
+        function showNotification(message) {
+            // Create temporary notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 50, 0, 0.4);
+                color: #00ff00;
+                padding: 10px 20px;
+                border-radius: 5px;
+                font-family: 'Courier New', monospace;
+                font-size: 14px;
+                z-index: 1000;
+                pointer-events: none;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            // Remove after 2 seconds
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 2000);
         }
 
         updateDate();
         updateSensorData();
+        fetchCurrentMode(); // Get initial mode from server
+        checkStreamStatus(); // Monitor video stream status
         setInterval(updateDate, 60000);
         setInterval(updateSensorData, 2000); // Update sensor data setiap 2 detik
     </script>

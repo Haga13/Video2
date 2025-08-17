@@ -1,10 +1,11 @@
-# Requirements untuk Video Streaming System
+# Requirements untuk Video Streaming System dengan AI Detection
 
 # Web Framework
 flask>=2.3.0
 
-# Computer Vision
+# Computer Vision dan AI
 opencv-python>=4.8.0
+ultralytics>=8.0.0
 
 # Image Processing
 Pillow>=10.0.0
@@ -15,8 +16,9 @@ requests>=2.31.0
 # Numerical Computing
 numpy>=1.24.0
 
-# Optional: Untuk performance yang lebih baik
-# opencv-contrib-python>=4.8.0  # Extra OpenCV modules
+# Optional: Untuk performance yang lebih baik di Jetson
+# torch>=1.9.0  # PyTorch (jika belum terinstall)
+# torchvision>=0.10.0  # PyTorch Vision
 
 # Development dependencies (opsional)
 # gunicorn>=21.2.0  # Production WSGI server
