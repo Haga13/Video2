@@ -377,16 +377,16 @@ class AIDetector:
         return frame
 
 class VideoStreamer:
-    def __init__(self, camera_index=0, fps=30, quality=85):
+    def __init__(self, camera_index=0, fps=30, quality=50):
         self.camera_index = camera_index
         self.fps = fps
-        self.quality = quality  # Higher quality for HD resolution
+        self.quality = quality  # Adjusted quality for 480p resolution
         self.frame_queue = queue.Queue(maxsize=1)  # Reduce buffer for lower latency
         self.cap = None
         self.running = False
-        # High definition resolution for better quality
-        self.frame_width = 1080  # HD width for better video quality
-        self.frame_height = 720  # HD height (720p)
+        # Standard definition resolution for balanced performance
+        self.frame_width = 320  # Standard width (480p)
+        self.frame_height = 240  # Standard height (480p)
         
         # Skip frame processing for performance
         self.frame_skip_counter = 0
@@ -665,6 +665,11 @@ def set_display_config(display_type):
             'name': 'HD 1080x720 (High Quality)',
             'quality': 85
         },
+        'standard_640x480': {
+            'width': 640, 'height': 480, 
+            'name': 'Standard 640x480 (Balanced)',
+            'quality': 75
+        },
         '7inch_800x480': {
             'width': 640, 'height': 480, 
             'name': '7 Inch 800x480 (Recommended)',
@@ -696,9 +701,9 @@ def set_display_config(display_type):
             'ai_input_size': 320
         },
         'default': {
-            'width': 1080, 'height': 720, 
-            'name': 'HD Default Resolution',
-            'quality': 85
+            'width': 640, 'height': 480, 
+            'name': 'Standard 480p Resolution',
+            'quality': 75
         }
     }
     
@@ -734,6 +739,66 @@ def set_display_config(display_type):
         return jsonify({
             'error': f'Failed to apply display config: {str(e)}'
         }), 500
+
+@app.route('/set_fps/<int:new_fps>')
+def set_fps(new_fps):
+    """Set FPS dengan validasi dan warning"""
+    global streamer
+    
+    # Validasi FPS range
+    if new_fps < 5 or new_fps > 120:
+        return jsonify({
+            'error': 'FPS harus antara 5-120',
+            'current_fps': streamer.fps
+        }), 400
+    
+    # Warning untuk FPS tinggi
+    warnings = []
+    if new_fps > 60:
+        warnings.append("⚠️ FPS >60: Sangat berat untuk CPU/GPU")
+    elif new_fps > 45:
+        warnings.append("⚠️ FPS >45: Konsumsi bandwidth tinggi")
+    elif new_fps > 30:
+        warnings.append("⚠️ FPS >30: Penggunaan CPU meningkat")
+    
+    # Set FPS baru
+    old_fps = streamer.fps
+    streamer.fps = new_fps
+    
+    # Update kamera jika sedang berjalan
+    if streamer.cap and streamer.cap.isOpened():
+        streamer.cap.set(cv2.CAP_PROP_FPS, new_fps)
+    
+    # Estimasi impact
+    cpu_impact = min(100, (new_fps / 30) * 50)  # Base 50% pada 30fps
+    bandwidth_impact = (new_fps / 30) * 100  # Persentase increase
+    
+    return jsonify({
+        'status': 'success',
+        'old_fps': old_fps,
+        'new_fps': new_fps,
+        'warnings': warnings,
+        'estimated_impact': {
+            'cpu_usage_percent': f"{cpu_impact:.0f}%",
+            'bandwidth_increase': f"{bandwidth_impact:.0f}%",
+            'memory_usage': f"{(new_fps/30)*60:.0f}MB"
+        },
+        'recommendation': get_fps_recommendation(new_fps),
+        'message': f'FPS changed from {old_fps} to {new_fps}'
+    })
+
+def get_fps_recommendation(fps):
+    """Get recommendation based on FPS"""
+    if fps <= 15:
+        return "💡 Low FPS: Cocok untuk monitoring hemat battery"
+    elif fps <= 30:
+        return "✅ Optimal: Balance antara smoothness dan performance"
+    elif fps <= 45:
+        return "⚡ High FPS: Smooth tapi konsumsi resource tinggi"
+    elif fps <= 60:
+        return "🔥 Very High: Butuh hardware kuat, bandwidth besar"
+    else:
+        return "🚀 Extreme: Hanya untuk hardware premium"
 
 @app.route('/sensor_data', methods=['POST'])
 def receive_sensor_data():
