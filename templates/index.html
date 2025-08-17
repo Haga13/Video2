@@ -315,28 +315,85 @@
         <div class="mode-title">
             AI DETECTION MODE
         </div>
-        <button class="mode-button" id="modeToggleBtn" onclick="toggleMode()">
-            SWITCH TO POSE MODE
+        <button class="mode-button pose" id="modeToggleBtn" onclick="toggleMode(); showButtonFeedback();">
+            SWITCH TO WEAPON MODE
         </button>
         <div class="mode-status" id="currentMode">
-            Current: WEAPON MODE
+            Current: POSE MODE
+        </div>
+        <div id="debugInfo" style="
+            color: #ffff00; 
+            font-size: 8px; 
+            margin-top: 5px; 
+            font-family: monospace;
+            text-align: center;
+            opacity: 0.7;
+        ">
+            Ready
         </div>
     </div>
 
     <script>
-        let currentMode = 'weapon'; // Track current mode
+        let currentMode = 'pose'; // Track current mode - default to pose since server starts with pose active
 
         function toggleMode() {
-            fetch('/toggle_mode')
-                .then(response => response.json())
-                .then(data => {
-                    currentMode = data.detection_mode;
-                    updateModeUI();
-                    console.log(data.message);
-                })
-                .catch(error => {
-                    console.error('Error toggling mode:', error);
-                });
+            console.log('🔄 Toggle mode clicked');
+            updateDebugInfo('Toggling mode...');
+
+            // Try fetch first, fallback to XMLHttpRequest for older browsers
+            if (typeof fetch !== 'undefined') {
+                fetch('/toggle_mode')
+                    .then(response => {
+                        console.log('📡 Response received:', response.status);
+                        updateDebugInfo('Response: ' + response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('📦 Data received:', data);
+                        currentMode = data.detection_mode;
+                        updateModeUI();
+                        updateDebugInfo('✅ ' + data.detection_mode + ' mode');
+                        console.log('✅ Mode updated to:', currentMode);
+                    })
+                    .catch(error => {
+                        console.error('❌ Fetch error:', error);
+                        updateDebugInfo('❌ Fetch failed, trying XHR...');
+                        // Fallback to XMLHttpRequest
+                        toggleModeXHR();
+                    });
+            } else {
+                // Fallback for older browsers
+                updateDebugInfo('Using XHR fallback...');
+                toggleModeXHR();
+            }
+        }
+
+        function toggleModeXHR() {
+            console.log('🔄 Using XMLHttpRequest fallback');
+            updateDebugInfo('XHR request...');
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/toggle_mode', true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            console.log('📦 XHR Data received:', data);
+                            currentMode = data.detection_mode;
+                            updateModeUI();
+                            updateDebugInfo('✅ XHR ' + data.detection_mode + ' mode');
+                            console.log('✅ XHR Mode updated to:', currentMode);
+                        } catch (e) {
+                            console.error('❌ XHR JSON parse error:', e);
+                            updateDebugInfo('❌ XHR parse error');
+                        }
+                    } else {
+                        console.error('❌ XHR error:', xhr.status);
+                        updateDebugInfo('❌ XHR error: ' + xhr.status);
+                    }
+                }
+            };
+            xhr.send();
         }
 
         function updateModeUI() {
@@ -393,10 +450,35 @@
                 });
         }
 
+        function showButtonFeedback() {
+            const button = document.getElementById('modeToggleBtn');
+            const debugInfo = document.getElementById('debugInfo');
+
+            // Visual feedback
+            button.style.transform = 'scale(0.95)';
+            button.style.opacity = '0.7';
+            debugInfo.textContent = 'Button clicked...';
+
+            setTimeout(() => {
+                button.style.transform = 'scale(1)';
+                button.style.opacity = '1';
+            }, 200);
+        }
+
+        function updateDebugInfo(message) {
+            const debugInfo = document.getElementById('debugInfo');
+            if (debugInfo) {
+                debugInfo.textContent = message;
+            }
+        }
+
         // Initialize
         updateSensorData();
         fetchCurrentMode(); // Get initial mode from server
         setInterval(updateSensorData, 2000); // Update sensor data setiap 2 detik
+
+        // Debug info
+        updateDebugInfo('System ready - ' + new Date().toLocaleTimeString());
     </script>
 </body>
 

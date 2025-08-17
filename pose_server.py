@@ -7,7 +7,7 @@ Server sederhana untuk menjalankan pose detection melalui web interface
 import cv2
 import threading
 import time
-from flask import Flask, Response, render_template, jsonify
+from flask import Flask, Response, render_template, jsonify, request
 import socket
 import queue
 import numpy as np
@@ -24,12 +24,20 @@ except ImportError:
 
 app = Flask(__name__)
 
+# Add CORS headers manually for Jetson Nano compatibility
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
+
 class PoseDetectionServer:
     def __init__(self):
         self.frame_queue = queue.Queue(maxsize=2)
         self.cap = None
         self.running = False
-        self.pose_detection_active = False
+        self.pose_detection_active = True  # Langsung aktif saat startup
         
         # Setup MediaPipe
         if MEDIAPIPE_AVAILABLE:
@@ -241,21 +249,29 @@ def video_feed():
 @app.route('/toggle_mode', methods=['GET', 'POST'])
 def toggle_mode():
     """Toggle pose detection mode"""
+    print(f"🔄 Toggle mode request received from {request.remote_addr}")
+    
     success, message = pose_server.toggle_pose_detection()
     
     if success:
         detection_mode = 'pose' if pose_server.pose_detection_active else 'weapon'
-        return jsonify({
+        print(f"✅ Mode toggled successfully to: {detection_mode}")
+        response_data = {
             'status': 'success',
             'message': message,
             'detection_mode': detection_mode
-        })
+        }
+        print(f"📤 Sending response: {response_data}")
+        return jsonify(response_data)
     else:
-        return jsonify({
+        print(f"❌ Mode toggle failed: {message}")
+        response_data = {
             'status': 'error',
             'message': message,
             'detection_mode': 'weapon'
-        }), 500
+        }
+        print(f"📤 Sending error response: {response_data}")
+        return jsonify(response_data), 500
 
 @app.route('/status')
 def status():
@@ -296,6 +312,7 @@ if __name__ == '__main__':
         
         if MEDIAPIPE_AVAILABLE:
             print("✅ MediaPipe available - Pose detection ready!")
+            print("🚀 Pose detection akan langsung aktif saat startup!")
         else:
             print("❌ MediaPipe not available")
             print("   Install: pip install mediapipe")
@@ -313,9 +330,9 @@ if __name__ == '__main__':
         
         print(f"\n📱 How to use:")
         print(f"   1. Open browser → http://localhost:{port}")
-        print(f"   2. Click 'SWITCH TO POSE MODE' button")
-        print(f"   3. Stand in front of camera")
-        print(f"   4. See pose detection in action! 🤸‍♂️")
+        print(f"   2. Stand in front of camera")
+        print(f"   3. Pose detection is already active! 🤸‍♂️")
+        print(f"   4. Use toggle button to switch modes if needed")
         
         print(f"{'='*50}\n")
         
