@@ -61,21 +61,6 @@
                 height: 6px !important;
                 margin-right: 6px !important;
             }
-
-            .sensor-panel,
-            .mode-panel {
-                font-size: 10px !important;
-                padding: 6px !important;
-                bottom: 5px !important;
-            }
-
-            .sensor-panel {
-                left: 10px !important;
-            }
-
-            .mode-panel {
-                right: 10px !important;
-            }
         }
 
         .overlay-text {
@@ -133,71 +118,7 @@
             }
         }
 
-        /* Live indicator - titik merah berkedip */
-        .live-indicator {
-            position: fixed;
-            top: 15px;
-            right: 20px;
-            display: flex;
-            align-items: center;
-            z-index: 12;
-            pointer-events: none;
-        }
-
-        .live-dot {
-            width: 12px;
-            height: 12px;
-            background-color: #ff0000;
-            border-radius: 50%;
-            margin-right: 8px;
-            animation: blink 1.5s infinite;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
-        }
-
-        .live-text {
-            color: #ff0000;
-            font-family: 'Arial Black', Arial, sans-serif;
-            font-size: 14px;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-
-        /* Responsif untuk layar kecil */
-        @media screen and (max-width: 800px) {
-            .live-indicator {
-                top: 8px;
-                right: 15px;
-            }
-
-            .live-dot {
-                width: 10px;
-                height: 10px;
-                margin-right: 6px;
-            }
-
-            .live-text {
-                font-size: 12px;
-            }
-
-            .sensor-panel {
-                bottom: 120px !important;
-                left: 8px !important;
-                padding: 4px !important;
-                font-size: 9px !important;
-                min-width: 100px !important;
-                max-width: 130px !important;
-            }
-
-            .mode-panel {
-                bottom: 5px !important;
-                left: 8px !important;
-                padding: 6px !important;
-                font-size: 9px !important;
-                min-width: 120px !important;
-                max-width: 140px !important;
-            }
-        }
-
+        /* Sensor Panel Styles */
         .sensor-panel {
             position: fixed;
             bottom: 180px;
@@ -254,34 +175,7 @@
             background: #00ff00;
         }
 
-        .control-button {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 4px;
-            color: #ffffff;
-            font-family: 'Courier New', monospace;
-            font-size: 10px;
-            padding: 4px 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 2px;
-            width: 100%;
-            text-align: center;
-            pointer-events: auto;
-        }
-
-        .control-button:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: #00ff00;
-            color: #00ff00;
-        }
-
-        .control-button.active {
-            background: rgba(0, 255, 0, 0.2);
-            border-color: #00ff00;
-            color: #00ff00;
-        }
-
+        /* Mode Panel Styles */
         .mode-panel {
             position: fixed;
             bottom: 8px;
@@ -362,6 +256,27 @@
             font-size: 9px;
             color: #ffffff;
         }
+
+        /* Responsive adjustments */
+        @media screen and (max-width: 800px) {
+            .sensor-panel {
+                bottom: 120px !important;
+                left: 8px !important;
+                padding: 4px !important;
+                font-size: 9px !important;
+                min-width: 100px !important;
+                max-width: 130px !important;
+            }
+
+            .mode-panel {
+                bottom: 5px !important;
+                left: 8px !important;
+                padding: 6px !important;
+                font-size: 9px !important;
+                min-width: 120px !important;
+                max-width: 140px !important;
+            }
+        }
     </style>
 </head>
 
@@ -374,24 +289,6 @@
             Live Streaming
         </div>
     </div>
-
-    <!-- Live Indicator - Titik merah berkedip -->
-    <!-- <div class="live-indicator">
-        <div class="live-dot"></div>
-        <div class="live-text">LIVE</div>
-    </div> -->
-
-    <div id="dateDisplay" style="
-        position: fixed;
-        top: 10px;
-        left: 15px;
-        color: #fff;
-        font-family: Arial, sans-serif;
-        font-size: 14px;
-        font-weight: bold;
-        z-index: 11;
-        pointer-events: none;
-    "></div>
 
     <!-- Panel Sensor Data -->
     <div class="sensor-panel">
@@ -418,56 +315,85 @@
         <div class="mode-title">
             AI DETECTION MODE
         </div>
-        <button class="mode-button" id="modeToggleBtn" onclick="toggleMode()">
-            SWITCH TO POSE MODE
+        <button class="mode-button pose" id="modeToggleBtn" onclick="toggleMode(); showButtonFeedback();">
+            SWITCH TO WEAPON MODE
         </button>
         <div class="mode-status" id="currentMode">
-            Current: WEAPON MODE
+            Current: POSE MODE
         </div>
-
-        <!-- Display Configuration -->
-        <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #ff6600;">
-            <div style="text-align: center; font-size: 10px; color: #ffffff; margin-bottom: 6px; font-weight: bold;">
-                DISPLAY CONFIG
-            </div>
-            <button class="control-button" onclick="setDisplay('7inch_800x480')">
-                7" Optimal
-            </button>
-            <button class="control-button" onclick="setDisplay('7inch_compact')">
-                7" Compact
-            </button>
-        </div>
-
-        <!-- Jetson Configuration -->
-        <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #00ff00;">
-            <div style="text-align: center; font-size: 10px; color: #00ff00; margin-bottom: 6px; font-weight: bold;">
-                JETSON CONFIG
-            </div>
-            <button class="control-button" onclick="setDisplay('jetson_7inch_performance')"
-                style="background: rgba(0, 255, 0, 0.1); border-color: #00ff00; color: #00ff00;">
-                Performance
-            </button>
-            <button class="control-button" onclick="setDisplay('jetson_7inch_balanced')"
-                style="background: rgba(0, 255, 0, 0.1); border-color: #00ff00; color: #00ff00;">
-                Balanced
-            </button>
+        <div id="debugInfo" style="
+            color: #ffff00; 
+            font-size: 8px; 
+            margin-top: 5px; 
+            font-family: monospace;
+            text-align: center;
+            opacity: 0.7;
+        ">
+            Ready
         </div>
     </div>
 
     <script>
-        let currentMode = 'weapon'; // Track current mode
+        let currentMode = 'pose'; // Track current mode - default to pose since server starts with pose active
 
         function toggleMode() {
-            fetch('/toggle_mode')
-                .then(response => response.json())
-                .then(data => {
-                    currentMode = data.detection_mode;
-                    updateModeUI();
-                    console.log(data.message);
-                })
-                .catch(error => {
-                    console.error('Error toggling mode:', error);
-                });
+            console.log('🔄 Toggle mode clicked');
+            updateDebugInfo('Toggling mode...');
+
+            // Try fetch first, fallback to XMLHttpRequest for older browsers
+            if (typeof fetch !== 'undefined') {
+                fetch('/toggle_mode')
+                    .then(response => {
+                        console.log('📡 Response received:', response.status);
+                        updateDebugInfo('Response: ' + response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('📦 Data received:', data);
+                        currentMode = data.detection_mode;
+                        updateModeUI();
+                        updateDebugInfo('✅ ' + data.detection_mode + ' mode');
+                        console.log('✅ Mode updated to:', currentMode);
+                    })
+                    .catch(error => {
+                        console.error('❌ Fetch error:', error);
+                        updateDebugInfo('❌ Fetch failed, trying XHR...');
+                        // Fallback to XMLHttpRequest
+                        toggleModeXHR();
+                    });
+            } else {
+                // Fallback for older browsers
+                updateDebugInfo('Using XHR fallback...');
+                toggleModeXHR();
+            }
+        }
+
+        function toggleModeXHR() {
+            console.log('🔄 Using XMLHttpRequest fallback');
+            updateDebugInfo('XHR request...');
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/toggle_mode', true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            console.log('📦 XHR Data received:', data);
+                            currentMode = data.detection_mode;
+                            updateModeUI();
+                            updateDebugInfo('✅ XHR ' + data.detection_mode + ' mode');
+                            console.log('✅ XHR Mode updated to:', currentMode);
+                        } catch (e) {
+                            console.error('❌ XHR JSON parse error:', e);
+                            updateDebugInfo('❌ XHR parse error');
+                        }
+                    } else {
+                        console.error('❌ XHR error:', xhr.status);
+                        updateDebugInfo('❌ XHR error: ' + xhr.status);
+                    }
+                }
+            };
+            xhr.send();
         }
 
         function updateModeUI() {
@@ -483,12 +409,6 @@
                 modeButton.className = 'mode-button pose';
                 currentModeText.textContent = 'Current: POSE MODE';
             }
-        }
-
-        function updateDate() {
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            const now = new Date();
-            document.getElementById('dateDisplay').textContent = now.toLocaleDateString('id-ID', options);
         }
 
         function updateSensorData() {
@@ -508,66 +428,12 @@
                         statusIndicator.className = 'status-indicator';
                         document.getElementById('lastUpdate').textContent = lastUpdate.toFixed(0) + 's ago';
                     }
-
-                    // Update live indicator based on streaming status
-                    updateLiveIndicator(true);
                 })
                 .catch(error => {
                     console.error('Error fetching sensor data:', error);
                     document.getElementById('statusIndicator').className = 'status-indicator';
                     document.getElementById('lastUpdate').textContent = 'Error';
-
-                    // Update live indicator - show disconnected state
-                    updateLiveIndicator(false);
                 });
-        }
-
-        function updateLiveIndicator(isConnected) {
-            const liveIndicator = document.querySelector('.live-indicator');
-            const liveDot = document.querySelector('.live-dot');
-            const liveText = document.querySelector('.live-text');
-
-            if (isConnected) {
-                // Connected state - red blinking dot
-                liveDot.style.backgroundColor = '#ff0000';
-                liveDot.style.animation = 'blink 1.5s infinite';
-                liveDot.style.boxShadow = '0 0 10px rgba(255, 0, 0, 0.8)';
-                liveText.style.color = '#ff0000';
-                liveText.textContent = 'LIVE';
-            } else {
-                // Disconnected state - gray static dot
-                liveDot.style.backgroundColor = '#666666';
-                liveDot.style.animation = 'none';
-                liveDot.style.boxShadow = 'none';
-                liveText.style.color = '#666666';
-                liveText.textContent = 'OFFLINE';
-            }
-        }
-
-        // Check video stream status
-        function checkStreamStatus() {
-            const videoElement = document.getElementById('videoStream');
-
-            // Monitor video load events
-            videoElement.addEventListener('loadstart', () => {
-                console.log('Stream loading...');
-                updateLiveIndicator(false);
-            });
-
-            videoElement.addEventListener('loadeddata', () => {
-                console.log('Stream loaded');
-                updateLiveIndicator(true);
-            });
-
-            videoElement.addEventListener('error', () => {
-                console.log('Stream error');
-                updateLiveIndicator(false);
-            });
-
-            // Check if video is playing
-            videoElement.addEventListener('play', () => {
-                updateLiveIndicator(true);
-            });
         }
 
         function fetchCurrentMode() {
@@ -584,68 +450,35 @@
                 });
         }
 
-        function setDisplay(displayType) {
-            fetch(`/display_config/${displayType}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        console.error('Display config error:', data.error);
-                        alert('Failed to set display configuration');
-                    } else {
-                        console.log(`Display configured: ${data.config.name}`);
-                        console.log(`Resolution: ${data.current_resolution}`);
+        function showButtonFeedback() {
+            const button = document.getElementById('modeToggleBtn');
+            const debugInfo = document.getElementById('debugInfo');
 
-                        // Optional: Show brief notification
-                        showNotification(`Set to ${data.config.name}`);
+            // Visual feedback
+            button.style.transform = 'scale(0.95)';
+            button.style.opacity = '0.7';
+            debugInfo.textContent = 'Button clicked...';
 
-                        // Refresh video stream to apply new resolution
-                        setTimeout(() => {
-                            const videoElement = document.getElementById('videoStream');
-                            const currentSrc = videoElement.src;
-                            videoElement.src = '';
-                            setTimeout(() => {
-                                videoElement.src = currentSrc;
-                            }, 100);
-                        }, 500);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error setting display config:', error);
-                });
-        }
-
-        function showNotification(message) {
-            // Create temporary notification
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: rgba(0, 50, 0, 0.4);
-                color: #00ff00;
-                padding: 10px 20px;
-                border-radius: 5px;
-                font-family: 'Courier New', monospace;
-                font-size: 14px;
-                z-index: 1000;
-                pointer-events: none;
-            `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-
-            // Remove after 2 seconds
             setTimeout(() => {
-                document.body.removeChild(notification);
-            }, 2000);
+                button.style.transform = 'scale(1)';
+                button.style.opacity = '1';
+            }, 200);
         }
 
-        updateDate();
+        function updateDebugInfo(message) {
+            const debugInfo = document.getElementById('debugInfo');
+            if (debugInfo) {
+                debugInfo.textContent = message;
+            }
+        }
+
+        // Initialize
         updateSensorData();
         fetchCurrentMode(); // Get initial mode from server
-        checkStreamStatus(); // Monitor video stream status
-        setInterval(updateDate, 60000);
         setInterval(updateSensorData, 2000); // Update sensor data setiap 2 detik
+
+        // Debug info
+        updateDebugInfo('System ready - ' + new Date().toLocaleTimeString());
     </script>
 </body>
 
