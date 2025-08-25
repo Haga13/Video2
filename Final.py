@@ -24,19 +24,41 @@ import serial
 import threading
 import time
 
+
+# Variabel global untuk data sensor
 buzzer_state = "OFF"
+sensor_detect = False
+sensor_temperature = 0.0
+sensor_humidity = 0.0
 
 def read_serial():
-    global buzzer_state
+    global buzzer_state, sensor_detect, sensor_temperature, sensor_humidity, sensor_data
     try:
-        ser = serial.Serial('COM6', 115200, timeout=1)  # Ganti COM & baudrate sesuai ESP32
+        ser = serial.Serial('COM3', 115200, timeout=1)  # Ganti COM & baudrate sesuai ESP32
         time.sleep(2)
         while True:
-            line = ser.readline().decode().strip().lower()
-            if line == "true":
-                buzzer_state = "ON"
-            elif line == "false":
-                buzzer_state = "OFF"
+            line = ser.readline().decode().strip()
+            if not line:
+                continue
+            # Format: detect*temperature*humidity
+            parts = line.split('*')
+            if len(parts) == 3:
+                detect_str, temp_str, hum_str = parts
+                # detect: 'true'/'false' (string)
+                sensor_detect = detect_str.lower() == 'true'
+                buzzer_state = "ON" if sensor_detect else "OFF"
+                try:
+                    sensor_temperature = float(temp_str)
+                except:
+                    sensor_temperature = -99.0
+                try:
+                    sensor_humidity = float(hum_str)
+                except:
+                    sensor_humidity = -99.0
+                # Update global sensor_data agar endpoint tetap backward compatible
+                sensor_data['temperature'] = sensor_temperature
+                sensor_data['humidity'] = sensor_humidity
+                sensor_data['timestamp'] = time.time()
     except Exception as e:
         print("Serial error:", e)
 
@@ -416,7 +438,12 @@ def status():
             'pose_confidence': streamer.detector.pose_confidence_threshold,
             'face_mesh_confidence': streamer.detector.face_mesh_confidence_threshold
         },
-        "buzzer": buzzer_state
+        "buzzer": buzzer_state,
+        "sensor": {
+            "detect": sensor_detect,
+            "temperature": sensor_temperature,
+            "humidity": sensor_humidity
+        }
     })
 
 @app.route('/toggle_detection')
@@ -462,10 +489,11 @@ def toggle_mode():
 
 @app.route('/get_sensor_data')
 def get_sensor_data():
-    global sensor_data
+    global sensor_data, sensor_detect, sensor_temperature, sensor_humidity
     return jsonify({
-        'temperature': sensor_data['temperature'],
-        'humidity': sensor_data['humidity'],
+        'detect': sensor_detect,
+        'temperature': sensor_temperature,
+        'humidity': sensor_humidity,
         'timestamp': sensor_data['timestamp'],
         'last_update': time.time() - sensor_data['timestamp']
     })

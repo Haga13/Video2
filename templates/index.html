@@ -410,11 +410,30 @@
 <body>
     <aside>
         <h1
-            style="margin: 0 0 20px 0; font-size: 28px; background: linear-gradient(45deg, #ff0000, #ff6600); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 20px rgba(255, 102, 0, 0.3); letter-spacing: 2px;">
+            style="margin: 0 0 0 0; font-size: 60px; background: white; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 20px rgba(255, 102, 0, 0.3); letter-spacing: 2px;">
             MALEO</h1>
-        <p style="text-align: center; margin-bottom: 20px;">
+        <!-- Tabel waktu, tanggal, aktif di pojok kiri bawah -->
+        <div style="position:absolute;left:20px;bottom:10px;z-index:3;">
+            <table
+                style="font-size:14px;color:#fff;background:rgba(0,0,0,0.3);border-radius:8px;padding:2px px;box-shadow:0 2px 8px #000;">
+                
+                <tr>
+                    <td>Date</td>
+                    <td id="currentDate">--/--/----</td>
+                </tr>
+                <tr>
+                    <td style="color:#ffb300;">Time</td>
+                    <td id="currentTime">--:--:--</td>
+                </tr>
+                <tr>
+                    <td>Active</td>
+                    <td id="activeTime">00:00:00</td>
+                </tr>
+            </table>
+        </div>
+        <p style="text-align: center; margin-bottom: 10px;">
             <span id="liveDot"
-                style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#ff0000;margin-right:8px;vertical-align:middle;box-shadow:0 0 8px #ff0000;"></span>Livestream
+                style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ff0000;margin-right:8px;vertical-align:middle;box-shadow:0 0 8px #ff0000;"></span>Livestream
         </p>
         <script>
             // Kedut-kedut animasi untuk titik merah
@@ -425,6 +444,38 @@
                 liveDot.style.opacity = visible ? '1' : '0.3';
                 liveDot.style.transform = visible ? 'scale(1.1)' : 'scale(0.8)';
             }, 500);
+
+            // Tabel waktu, tanggal, aktif
+            let startTime = Date.now();
+            function updateActiveTime() {
+                let now = Date.now();
+                let diff = Math.floor((now - startTime) / 1000);
+                let hours = String(Math.floor(diff / 3600)).padStart(2, '0');
+                let minutes = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
+                let seconds = String(diff % 60).padStart(2, '0');
+                document.getElementById('activeTime').textContent = `${hours}:${minutes}:${seconds}`;
+            }
+            function updateCurrentDate() {
+                const now = new Date();
+                const day = String(now.getDate()).padStart(2, '0');
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const year = now.getFullYear();
+                document.getElementById('currentDate').textContent = `${day}/${month}/${year}`;
+            }
+            function updateCurrentTime() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                document.getElementById('currentTime').textContent = `${hours}:${minutes}:${seconds}`;
+            }
+            setInterval(() => {
+                updateActiveTime();
+                updateCurrentTime();
+            }, 1000);
+            updateActiveTime();
+            updateCurrentDate();
+            updateCurrentTime();
         </script>
 
         <!-- Sensor Data Panel -->
@@ -456,16 +507,22 @@
         <div class="debug-info" id="debugInfo">
             Ready
         </div>
-        <button class="toggle-border-button show" id="toggleBorderBtn" onclick="toggleBorder();">
-            BORDER ON
-        </button>
+        <!-- Tombol border disembunyikan -->
     </aside>
+
     <main class="video-container">
-        <img id="videoStream" class="video-stream" src="/video_feed" alt="Video Stream">
-        <div class="center-border-box hidden" id="bombBorder">
+        <!-- Video background -->
+        <video id="bgVideo" autoplay loop muted playsinline
+            style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;">
+            <source src="/static/background.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <!-- Konten utama di atas video background -->
+        <img id="videoStream" class="video-stream" src="/video_feed" alt="Video Stream"
+            style="position:relative;z-index:2;">
+        <div class="center-border-box hidden" id="bombBorder" style="z-index:3;">
             <span class="bomb-alert-text" id="bombText" style="display:none;">Indicated</span>
         </div>
-
     </main>
 
     <script>

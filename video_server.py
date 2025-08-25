@@ -1,3 +1,15 @@
+import datetime
+# Global streamer instance
+streamer = VideoStreamer(fps=30, quality=90)
+
+# Waktu mulai server
+server_start_time = datetime.datetime.now()
+@app.route('/uptime')
+def uptime():
+    """Mengembalikan waktu aktif server dalam detik"""
+    now = datetime.datetime.now()
+    uptime_seconds = int((now - server_start_time).total_seconds())
+    return jsonify({'uptime': uptime_seconds})
 #!/usr/bin/env python3
 """
 AI Video Server with Detection
