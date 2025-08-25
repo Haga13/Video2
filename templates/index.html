@@ -9,332 +9,467 @@
         body {
             margin: 0;
             padding: 0;
-            background: white;
+            display: flex;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        aside {
+            flex: 2;
+            background: black;
+            background-image: url('/static/cyber-hacker-attack-background-skull-vector.jpg');
+            background-size: cover;
+            background-position: left center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 15px;
+            box-shadow: inset -5px 0 15px rgba(0, 0, 0, 0.3);
+            color: #ffffff;
+            overflow-y: auto;
+            position: relative;
+            /* Hide scrollbar for all browsers */
+            -ms-overflow-style: none;
+            /* IE and Edge */
+            scrollbar-width: none;
+            /* Firefox */
+        }
+
+        /* Dark overlay for aside to maintain readability */
+        aside::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg,
+                    rgba(26, 26, 26, 0.85) 0%,
+                    rgba(45, 45, 45, 0.80) 50%,
+                    rgba(0, 0, 0, 0.90) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Ensure aside content is above the overlay */
+        aside>* {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        aside::-webkit-scrollbar {
+            display: none;
+        }
+
+        .mode-button {
+            background: linear-gradient(135deg, rgba(255, 102, 0, 0.8), rgba(255, 102, 0, 0.6));
+            border: 2px solid #ff6600;
+            border-radius: 12px;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 14px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            min-width: 200px;
+            box-shadow: 0 4px 15px rgba(255, 102, 0, 0.2);
+            position: relative;
             overflow: hidden;
-            font-family: 'Arial', sans-serif;
+        }
+
+        .mode-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .mode-button:hover::before {
+            left: 100%;
+        }
+
+        .mode-button:hover {
+            background: linear-gradient(135deg, rgba(255, 102, 0, 1), rgba(255, 102, 0, 0.8));
+            border-color: #ffaa55;
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 102, 0, 0.4);
+        }
+
+        .mode-button.weapon {
+            border-color: #ff0000;
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.8), rgba(255, 0, 0, 0.6));
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);
+        }
+
+        .mode-button.weapon:hover {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 1), rgba(255, 0, 0, 0.8));
+            border-color: #ff5555;
+            box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
+        }
+
+        .mode-button.pose {
+            border-color: #00ff00;
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.8), rgba(0, 255, 0, 0.6));
+            box-shadow: 0 4px 15px rgba(0, 255, 0, 0.2);
+        }
+
+        .mode-button.pose:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 1), rgba(0, 255, 0, 0.8));
+            border-color: #55ff55;
+            box-shadow: 0 6px 20px rgba(0, 255, 0, 0.4);
+        }
+
+        .mode-status {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: #ffffff;
+            margin-top: 8px;
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .debug-info {
+            color: #ff6b00;
+            font-size: 11px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            font-weight: 500;
+            margin-top: 15px;
+            padding: 10px 12px;
+            background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+            border-radius: 8px;
+            border: 1px solid #444;
+            min-height: 24px;
+            box-shadow: 0 2px 10px rgba(255, 107, 0, 0.1);
+            transition: all 0.3s ease;
         }
 
         .video-container {
-            position: fixed;
+            flex: 9;
+            background: black;
+            background-image: url('/static/cyber-hacker-attack-background-skull-vector.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .video-container::before {
+            content: '';
+            position: absolute;
             top: 0;
             left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: white;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1;
         }
 
-        .video-stream {
-            width: 100vw;
-            height: 100vh;
-            object-fit: fill;
-            background: white;
-            display: block;
-        }
-
-        @media screen and (max-width: 1024px) and (max-height: 600px) {
-            .video-stream {
-                object-fit: fill;
-                width: 100vw;
-                height: 100vh;
-            }
-        }
-
-        @media screen and (max-width: 800px) and (max-height: 480px) {
-            .video-stream {
-                object-fit: fill;
-                width: 100vw;
-                height: 100vh;
-            }
-
-            .overlay-text {
-                font-size: 28px !important;
-                top: 5px !important;
-            }
-
-            .overlay-subtext {
-                font-size: 16px !important;
-                top: 40px !important;
-            }
-
-            .live-dot-overlay {
-                width: 6px !important;
-                height: 6px !important;
-                margin-right: 6px !important;
-            }
-        }
-
-        .overlay-text {
-            position: fixed;
-            top: 15px;
+        .center-border-box {
+            width: 50%;
+            height: 50%;
+            border: 3px solid red;
+            border-radius: 8px;
+            position: absolute;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            color: white;
-            font-family: 'Arial Black', Arial, sans-serif;
-            font-size: 32px;
-            font-weight: bold;
-            z-index: 10;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             pointer-events: none;
+        }
+
+        .center-border-box.blink {
+            animation: blink-border 0.5s steps(1, start) infinite;
+        }
+
+        @keyframes blink-border {
+
+            0%,
+            100% {
+                border-color: red;
+                box-shadow: 0 0 20px 5px #ff0000;
+            }
+
+            50% {
+                border-color: yellow;
+                box-shadow: 0 0 20px 10px #ffff00;
+            }
+        }
+
+        .bomb-alert-text {
+            color: #fff;
+            font-size: 2.2vw;
+            font-weight: bold;
+            text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0;
+            background: rgba(255, 0, 0, 0.7);
+            border-radius: 10px;
+            padding: 18px 32px;
+            border: 2px solid #fff200;
+            animation: blink-text 0.5s steps(1, start) infinite;
             letter-spacing: 2px;
         }
 
-        .overlay-subtext {
-            position: fixed;
-            top: 55px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #fff;
-            font-family: Arial, sans-serif;
-            font-size: 18px;
-            font-weight: normal;
-            z-index: 10;
-            pointer-events: none;
-            display: flex;
-            align-items: center;
-        }
-
-        /* Live dot untuk overlay text */
-        .live-dot-overlay {
-            width: 8px;
-            height: 8px;
-            background-color: #ff0000;
-            border-radius: 50%;
-            margin-right: 8px;
-            animation: blink 1.2s infinite;
-            box-shadow: 0 0 8px rgba(255, 0, 0, 0.6);
-        }
-
-        @keyframes blink {
+        @keyframes blink-text {
 
             0%,
-            50% {
-                opacity: 1;
-                transform: scale(1);
+            100% {
+                color: #fff;
+                background: rgba(255, 0, 0, 0.7);
+                border-color: #fff200;
             }
 
-            51%,
-            100% {
-                opacity: 0.3;
-                transform: scale(0.8);
+            50% {
+                color: #ff0;
+                background: rgba(255, 0, 0, 0.3);
+                border-color: #ff0000;
             }
         }
 
-        /* Sensor Panel Styles */
+        .center-border-box.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .toggle-border-button {
+            background: linear-gradient(135deg, rgba(128, 128, 128, 0.8), rgba(128, 128, 128, 0.6));
+            border: 2px solid #808080;
+            border-radius: 12px;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 14px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            min-width: 200px;
+            box-shadow: 0 4px 15px rgba(128, 128, 128, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toggle-border-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .toggle-border-button:hover::before {
+            left: 100%;
+        }
+
+        .toggle-border-button:hover {
+            background: linear-gradient(135deg, rgba(128, 128, 128, 1), rgba(128, 128, 128, 0.8));
+            border-color: #a0a0a0;
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(128, 128, 128, 0.4);
+        }
+
+        .toggle-border-button.show {
+            border-color: #0080ff;
+            background: linear-gradient(135deg, rgba(0, 128, 255, 0.8), rgba(0, 128, 255, 0.6));
+            box-shadow: 0 4px 15px rgba(0, 128, 255, 0.2);
+        }
+
+        .toggle-border-button.show:hover {
+            background: linear-gradient(135deg, rgba(0, 128, 255, 1), rgba(0, 128, 255, 0.8));
+            border-color: #4d9fff;
+            box-shadow: 0 6px 20px rgba(0, 128, 255, 0.4);
+        }
+
+        .video-stream {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
         .sensor-panel {
-            position: fixed;
-            bottom: 180px;
-            left: 10px;
-            background: rgba(0, 50, 0, 0.15);
-            border: 1px solid #00ff00;
-            border-radius: 6px;
-            padding: 6px;
-            color: #00ff00;
-            font-family: 'Courier New', monospace;
-            font-size: 10px;
-            z-index: 12;
-            pointer-events: none;
-            min-width: 120px;
-            max-width: 150px;
+            background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+            border: 2px solid #ff6b00;
+            border-radius: 12px;
+            padding: 20px;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            min-width: 200px;
+            margin: 15px 0;
+            box-shadow: 0 4px 15px rgba(255, 107, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .sensor-panel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 0, 0.3);
         }
 
         .sensor-title {
             text-align: center;
             font-weight: bold;
-            margin-bottom: 6px;
-            color: #ffffff;
-            border-bottom: 1px solid #00ff00;
-            padding-bottom: 3px;
-            font-size: 11px;
+            margin-bottom: 15px;
+            color: #ff6b00;
+            background: linear-gradient(45deg, #ff6b00, #ff8800);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-bottom: 2px solid #ff6b00;
+            padding-bottom: 8px;
+            font-size: 16px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255, 107, 0, 0.3);
         }
 
         .sensor-item {
-            margin: 4px 0;
+            margin: 10px 0;
             display: flex;
             justify-content: space-between;
-            font-size: 10px;
+            align-items: center;
+            font-size: 13px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+            border-left: 3px solid #ff6b00;
+            transition: all 0.3s ease;
+        }
+
+        .sensor-item:hover {
+            background: rgba(255, 107, 0, 0.1);
+            transform: translateX(3px);
         }
 
         .sensor-label {
-            color: #ffffff;
+            color: #cccccc;
+            font-weight: 600;
         }
 
         .sensor-value {
-            color: #00ff00;
+            color: #ff6b00;
             font-weight: bold;
+            text-shadow: 0 0 5px rgba(255, 107, 0, 0.5);
         }
 
         .status-indicator {
-            width: 8px;
-            height: 8px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             background: #ff0000;
             display: inline-block;
-            margin-right: 4px;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            animation: pulse 2s infinite;
         }
 
         .status-indicator.connected {
             background: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
         }
 
-        /* Mode Panel Styles */
-        .mode-panel {
-            position: fixed;
-            bottom: 8px;
-            left: 10px;
-            background: rgba(50, 25, 0, 0.15);
-            border: 1px solid #ff6600;
-            border-radius: 6px;
-            padding: 8px;
-            color: #ff6600;
-            font-family: 'Courier New', monospace;
-            font-size: 10px;
-            z-index: 10;
-            min-width: 140px;
-            max-width: 160px;
-        }
+        @keyframes pulse {
 
-        .mode-title {
-            text-align: center;
-            font-weight: bold;
-            margin-bottom: 6px;
-            color: #ffffff;
-            border-bottom: 1px solid #ff6600;
-            padding-bottom: 3px;
-            font-size: 11px;
-        }
-
-        .mode-button {
-            background: rgba(255, 102, 0, 0.2);
-            border: 1px solid #ff6600;
-            border-radius: 4px;
-            color: #ffffff;
-            font-family: 'Courier New', monospace;
-            font-size: 10px;
-            font-weight: bold;
-            padding: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            margin-top: 6px;
-            text-transform: uppercase;
-        }
-
-        .mode-button:hover {
-            background: rgba(255, 102, 0, 0.4);
-            border-color: #ffaa55;
-            color: #ffaa55;
-            transform: scale(1.02);
-        }
-
-        .mode-button.weapon {
-            border-color: #ff0000;
-            color: #ff0000;
-            background: rgba(255, 0, 0, 0.2);
-        }
-
-        .mode-button.weapon:hover {
-            background: rgba(255, 0, 0, 0.4);
-            border-color: #ff5555;
-            color: #ff5555;
-        }
-
-        .mode-button.pose {
-            border-color: #00ff00;
-            color: #00ff00;
-            background: rgba(0, 255, 0, 0.2);
-        }
-
-        .mode-button.pose:hover {
-            background: rgba(0, 255, 0, 0.4);
-            border-color: #55ff55;
-            color: #55ff55;
-        }
-
-        .mode-status {
-            text-align: center;
-            margin-top: 6px;
-            font-weight: bold;
-            font-size: 9px;
-            color: #ffffff;
-        }
-
-        /* Responsive adjustments */
-        @media screen and (max-width: 800px) {
-            .sensor-panel {
-                bottom: 120px !important;
-                left: 8px !important;
-                padding: 4px !important;
-                font-size: 9px !important;
-                min-width: 100px !important;
-                max-width: 130px !important;
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
             }
 
-            .mode-panel {
-                bottom: 5px !important;
-                left: 8px !important;
-                padding: 6px !important;
-                font-size: 9px !important;
-                min-width: 120px !important;
-                max-width: 140px !important;
+            50% {
+                opacity: 0.6;
+                transform: scale(0.9);
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="video-container">
-        <img id="videoStream" class="video-stream" src="/video_feed" alt="Video Stream">
-        <div class="overlay-text">MALEO</div>
-        <div class="overlay-subtext">
-            <div class="live-dot-overlay"></div>
-            Live Streaming
-        </div>
-    </div>
+    <aside>
+        <h1
+            style="margin: 0 0 20px 0; font-size: 28px; background: linear-gradient(45deg, #ff0000, #ff6600); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 20px rgba(255, 102, 0, 0.3); letter-spacing: 2px;">
+            MALEO</h1>
+        <p style="text-align: center; margin-bottom: 20px;">
+            <span id="liveDot"
+                style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#ff0000;margin-right:8px;vertical-align:middle;box-shadow:0 0 8px #ff0000;"></span>Livestream
+        </p>
+        <script>
+            // Kedut-kedut animasi untuk titik merah
+            const liveDot = document.getElementById('liveDot');
+            let visible = true;
+            setInterval(() => {
+                visible = !visible;
+                liveDot.style.opacity = visible ? '1' : '0.3';
+                liveDot.style.transform = visible ? 'scale(1.1)' : 'scale(0.8)';
+            }, 500);
+        </script>
 
-    <!-- Panel Sensor Data -->
-    <div class="sensor-panel">
-        <div class="sensor-title">
-            <span id="statusIndicator" class="status-indicator"></span>
-            SENSOR DATA
+        <!-- Sensor Data Panel -->
+        <div class="sensor-panel">
+            <div class="sensor-title">
+                <span id="statusIndicator" class="status-indicator"></span>
+                SENSOR DATA
+            </div>
+            <div class="sensor-item">
+                <span class="sensor-label">Temperature:</span>
+                <span class="sensor-value" id="temperature">--°C</span>
+            </div>
+            <div class="sensor-item">
+                <span class="sensor-label">Humidity:</span>
+                <span class="sensor-value" id="humidity">--%</span>
+            </div>
+            <div class="sensor-item">
+                <span class="sensor-label">Last Update:</span>
+                <span class="sensor-value" id="lastUpdate">--</span>
+            </div>
         </div>
-        <div class="sensor-item">
-            <span class="sensor-label">Temperature:</span>
-            <span class="sensor-value" id="temperature">--°C</span>
-        </div>
-        <div class="sensor-item">
-            <span class="sensor-label">Humidity:</span>
-            <span class="sensor-value" id="humidity">--%</span>
-        </div>
-        <div class="sensor-item">
-            <span class="sensor-label">Last Update:</span>
-            <span class="sensor-value" id="lastUpdate">--</span>
-        </div>
-    </div>
 
-    <!-- Panel Mode Toggle -->
-    <div class="mode-panel">
-        <div class="mode-title">
-            AI DETECTION MODE
-        </div>
-        <button class="mode-button pose" id="modeToggleBtn" onclick="toggleMode(); showButtonFeedback();">
-            SWITCH TO WEAPON MODE
+        <button class="mode-button weapon" id="modeToggleBtn" onclick="toggleMode(); showButtonFeedback();">
+            SWITCH TO POSE MODE
         </button>
         <div class="mode-status" id="currentMode">
-            Current: POSE MODE
+            Current: WEAPON MODE
         </div>
-        <div id="debugInfo" style="
-            color: #ffff00; 
-            font-size: 8px; 
-            margin-top: 5px; 
-            font-family: monospace;
-            text-align: center;
-            opacity: 0.7;
-        ">
+        <div class="debug-info" id="debugInfo">
             Ready
         </div>
-    </div>
+        <button class="toggle-border-button show" id="toggleBorderBtn" onclick="toggleBorder();">
+            BORDER ON
+        </button>
+    </aside>
+    <main class="video-container">
+        <img id="videoStream" class="video-stream" src="/video_feed" alt="Video Stream">
+        <div class="center-border-box hidden" id="bombBorder">
+            <span class="bomb-alert-text" id="bombText" style="display:none;">Indicated</span>
+        </div>
+
+    </main>
 
     <script>
-        let currentMode = 'pose'; // Track current mode - default to pose since server starts with pose active
+        let currentMode = 'weapon'; // Track current mode - default to weapon since server starts with weapon active
 
         function toggleMode() {
             console.log('🔄 Toggle mode clicked');
@@ -350,6 +485,7 @@
                     })
                     .then(data => {
                         console.log('📦 Data received:', data);
+                        // Use the frontend mode from server response
                         currentMode = data.detection_mode;
                         updateModeUI();
                         updateDebugInfo('✅ ' + data.detection_mode + ' mode');
@@ -411,31 +547,6 @@
             }
         }
 
-        function updateSensorData() {
-            fetch('/get_sensor_data')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('temperature').textContent = data.temperature.toFixed(1) + '°C';
-                    document.getElementById('humidity').textContent = data.humidity.toFixed(1) + '%';
-
-                    const lastUpdate = data.last_update;
-                    const statusIndicator = document.getElementById('statusIndicator');
-
-                    if (lastUpdate < 10) {
-                        statusIndicator.className = 'status-indicator connected';
-                        document.getElementById('lastUpdate').textContent = 'Active';
-                    } else {
-                        statusIndicator.className = 'status-indicator';
-                        document.getElementById('lastUpdate').textContent = lastUpdate.toFixed(0) + 's ago';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching sensor data:', error);
-                    document.getElementById('statusIndicator').className = 'status-indicator';
-                    document.getElementById('lastUpdate').textContent = 'Error';
-                });
-        }
-
         function fetchCurrentMode() {
             fetch('/status')
                 .then(response => response.json())
@@ -443,10 +554,12 @@
                     if (data.ai_detection && data.ai_detection.detection_mode) {
                         currentMode = data.ai_detection.detection_mode;
                         updateModeUI();
+                        updateDebugInfo('Loaded: ' + currentMode + ' mode');
                     }
                 })
                 .catch(error => {
                     console.error('Error fetching status:', error);
+                    updateDebugInfo('❌ Status fetch failed');
                 });
         }
 
@@ -472,14 +585,87 @@
             }
         }
 
+        function setBorder(show) {
+            const borderBox = document.querySelector('.center-border-box');
+            const toggleBtn = document.getElementById('toggleBorderBtn');
+
+            if (show) {
+                // Show border
+                borderBox.classList.remove('hidden');
+                toggleBtn.textContent = 'BORDER ON';
+                toggleBtn.className = 'toggle-border-button show';
+            } else {
+                // Hide border
+                borderBox.classList.add('hidden');
+                toggleBtn.textContent = 'BORDER OFF';
+                toggleBtn.className = 'toggle-border-button';
+            }
+        }
+
+        // Legacy function for manual toggle (if needed)
+        function toggleBorder() {
+            const borderBox = document.querySelector('.center-border-box');
+            const isHidden = borderBox.classList.contains('hidden');
+            setBorder(isHidden);
+        }
+
+        function updateSensorData() {
+            fetch('/get_sensor_data')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('temperature').textContent = data.temperature.toFixed(1) + '°C';
+                    document.getElementById('humidity').textContent = data.humidity.toFixed(1) + '%';
+
+                    const lastUpdate = data.last_update;
+                    const statusIndicator = document.getElementById('statusIndicator');
+
+                    if (lastUpdate < 10) {
+                        statusIndicator.className = 'status-indicator connected';
+                        document.getElementById('lastUpdate').textContent = 'Active';
+                    } else {
+                        statusIndicator.className = 'status-indicator';
+                        document.getElementById('lastUpdate').textContent = lastUpdate.toFixed(0) + 's ago';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching sensor data:', error);
+                    document.getElementById('statusIndicator').className = 'status-indicator';
+                    document.getElementById('lastUpdate').textContent = 'Error';
+                    document.getElementById('temperature').textContent = 'N/A';
+                    document.getElementById('humidity').textContent = 'N/A';
+                });
+        }
+
         // Initialize
-        updateSensorData();
         fetchCurrentMode(); // Get initial mode from server
-        setInterval(updateSensorData, 2000); // Update sensor data setiap 2 detik
+        updateSensorData(); // Get initial sensor data
+        setInterval(updateSensorData, 2000); // Update sensor data every 2 seconds
 
         // Debug info
         updateDebugInfo('System ready - ' + new Date().toLocaleTimeString());
     </script>
+
+    <script>
+        setInterval(() => {
+            fetch('/status')
+                .then(response => response.json())
+                .then(data => {
+                    const borderBox = document.getElementById('bombBorder');
+                    const bombText = document.getElementById('bombText');
+                    if (data.buzzer === "ON") {
+                        borderBox.classList.remove('hidden');
+                        borderBox.classList.add('blink');
+                        bombText.style.display = '';
+                    } else {
+                        borderBox.classList.add('hidden');
+                        borderBox.classList.remove('blink');
+                        bombText.style.display = 'none';
+                    }
+                })
+                .catch(err => console.error('Error fetching buzzer status:', err));
+        }, 200);
+    </script>
+
 </body>
 
 </html>
