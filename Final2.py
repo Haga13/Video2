@@ -15,28 +15,43 @@ from ultralytics import YOLO
 import os
 import mediapipe as mp
 
-print(f"🤖 AI Video Server Starting...")
-print(f"Working directory: {os.getcwd()}")
+# print(f"🤖 AI Video Server Starting...")
+# print(f"Working directory: {os.getcwd()}")
 
 
 # ===== PATCH BUZZER START =====
-import serial
+import serial, re
 import threading
 import time
 
-buzzer_state = "OFF"
+buzzer_state = "ON"
+sensor_data = {
+    'temperature': 0.0,
+    'humidity': 0.0,
+    'timestamp': time.time()
+}
 
 def read_serial():
-    global buzzer_state
+    global buzzer_state, sensor_data
     try:
-        ser = serial.Serial('COM3', 115200, timeout=1)  # Ganti COM & baudrate sesuai ESP32
+        ser = serial.Serial('COM3', 115200, timeout=1)  # Ganti sesuai port ESP32
         time.sleep(2)
         while True:
-            line = ser.readline().decode().strip().lower()
-            if line == "true":
-                buzzer_state = "ON"
-            elif line == "false":
-                buzzer_state = "OFF"
+            line = ser.readline().decode().strip()
+            if not line:
+                continue
+
+            # Parsing format: detect*temperature*humidity
+            parts = line.split('*')
+            if len(parts) == 3:
+                detect_str, temp_str, hum_str = parts
+                buzzer_state = "ON" if detect_str.lower() == "true" else "OFF"
+                try:
+                    sensor_data['temperature'] = float(temp_str)
+                    sensor_data['humidity'] = float(hum_str)
+                    sensor_data['timestamp'] = time.time()
+                except ValueError:
+                    print(f"Data tidak valid: {line}")
     except Exception as e:
         print("Serial error:", e)
 
@@ -367,11 +382,7 @@ class VideoStreamer:
 streamer = VideoStreamer(fps=30, quality=90)
 
 # Sensor data (dummy)
-sensor_data = {
-    'temperature': 25.0,
-    'humidity': 60.0,
-    'timestamp': time.time()
-}
+
 
 def generate_frames():
     """Frame generator for video streaming"""
