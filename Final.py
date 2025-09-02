@@ -15,8 +15,8 @@ from ultralytics import YOLO
 import os
 import mediapipe as mp
 
-print(f"🤖 AI Video Server Starting...")
-print(f"Working directory: {os.getcwd()}")
+# print(f"🤖 AI Video Server Starting...")
+# print(f"Working directory: {os.getcwd()}")
 
 
 # ===== PATCH BUZZER START =====
@@ -24,7 +24,7 @@ import serial, re
 import threading
 import time
 
-buzzer_state = "OFF"
+buzzer_state = "ON"
 sensor_data = {
     'temperature': 0.0,
     'humidity': 0.0,
